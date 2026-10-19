@@ -1,4 +1,5 @@
 # app.py — Flask main application for Football AI Predictor
+# v2 — football-data.org API active
 
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
