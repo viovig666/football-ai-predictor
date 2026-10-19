@@ -4,7 +4,7 @@ import os
 
 # RapidAPI API-Football key — get from https://rapidapi.com/api-sports/api/api-football
 API_FOOTBALL_KEY = os.environ.get("API_FOOTBALL_KEY", "YOUR_RAPIDAPI_KEY_HERE")
-API_FOOTBALL_HOST = "api-football-v1.p.rapidapi.com"
+API_FOOTBALL_HOST = "free-football-api-v1.p.rapidapi.com"
 
 # Database
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), "data", "predictions.db")

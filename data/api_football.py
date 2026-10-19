@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 
 
 class APIFootball:
-    """Client for the API-Football v3 on RapidAPI."""
+    """Client for the Free Live Football Data API on RapidAPI."""
 
-    BASE_URL = "https://api-football-v1.p.rapidapi.com/v3"
+    BASE_URL = "https://free-football-api-v1.p.rapidapi.com"
 
     def __init__(self):
         self.key = config.API_FOOTBALL_KEY
@@ -52,51 +52,31 @@ class APIFootball:
 
     def get_matches_by_date(self, date: str) -> list:
         """Get all matches for a given date (YYYY-MM-DD)."""
-        data = self._get("fixtures", {"date": date})
+        data = self._get("/fixtures", {"date": date})
         if not data:
             return self._demo_matches(date)
-        return [self._parse_fixture(f) for f in data]
+        return [self._parse_free_api_fixture(f) for f in data]
 
-    def get_match_stats(self, fixture_id: int) -> dict:
-        """Get detailed stats for a fixture."""
-        data = self._get("fixtures/statistics", {"fixture": fixture_id})
-        return data or {}
-
-    def get_h2h(self, home_team_id: int, away_team_id: int, limit: int = 10) -> list:
-        """Get head-to-head matches between two teams."""
-        data = self._get(
-            "fixtures/headsoff",
-            {"home": home_team_id, "away": away_team_id, "last": limit}
-        )
-        if not data:
-            return []
-        return [self._parse_fixture(f) for f in data[:5]]
-
-    def get_team_form(self, team_id: int, limit: int = 10) -> list:
-        """Get last N results for a team (W/D/L list)."""
-        data = self._get("fixtures", {"team": team_id, "last": limit})
-        if not data:
-            return []
-        results = []
-        for f in data[:limit]:
-            ft = f.get("fixture", {})
-            teams = f.get("teams", {})
-            t = teams.get("home") if teams.get("home", {}).get("id") == team_id else teams.get("away")
-            goals = f.get("goals", {})
-            home_goals = goals.get("home") or 0
-            away_goals = goals.get("away") or 0
-            if t and t.get("id") == team_id:
-                my_goals = home_goals if teams.get("home", {}).get("id") == team_id else away_goals
-                opp_goals = away_goals if teams.get("home", {}).get("id") == team_id else home_goals
-            else:
-                continue
-            if my_goals > opp_goals:
-                results.append("W")
-            elif my_goals < opp_goals:
-                results.append("L")
-            else:
-                results.append("D")
-        return results
+    def _parse_free_api_fixture(self, f: dict) -> dict:
+        """Convert free-football-api response to our standard format."""
+        # Free API uses flat keys: homeTeam, awayTeam, league, country, date, etc.
+        return {
+            "external_id": str(f.get("id", "")),
+            "date": f.get("date", "")[:10],
+            "time": f.get("date", "")[11:16] if len(f.get("date", "")) > 11 else "",
+            "home_team": f.get("homeTeam", ""),
+            "away_team": f.get("awayTeam", ""),
+            "home_team_id": None,
+            "away_team_id": None,
+            "home_score": f.get("score", {}).get("home") if isinstance(f.get("score"), dict) else None,
+            "away_score": f.get("score", {}).get("away") if isinstance(f.get("score"), dict) else None,
+            "league": f.get("league", ""),
+            "league_id": None,
+            "country": f.get("country", ""),
+            "flag": "",
+            "status": "upcoming",
+            "venue": None,
+        }
 
     def _parse_fixture(self, f: dict) -> dict:
         """Convert API fixture response to our standard format."""
