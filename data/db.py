@@ -35,7 +35,7 @@ def init_db(db_path: str):
         CREATE TABLE IF NOT EXISTS predictions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             match_id INTEGER NOT NULL,
-            predicted_outcome TEXT NOT NULL,
+            prediction TEXT NOT NULL,
             home_prob REAL NOT NULL,
             draw_prob REAL NOT NULL,
             away_prob REAL NOT NULL,
@@ -131,7 +131,7 @@ def save_prediction(db_path: str, match_id: int, prediction: dict):
     cur.execute("DELETE FROM predictions WHERE match_id = ?", (match_id,))
     cur.execute("""
         INSERT INTO predictions (
-            match_id, predicted_outcome, home_prob, draw_prob, away_prob,
+            match_id, prediction, home_prob, draw_prob, away_prob,
             confidence, over_25_prob, under_25_prob, btts_yes_prob, btts_no_prob,
             model_version, model_type
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -159,9 +159,9 @@ def save_result(db_path: str, match_id: int, actual_outcome: str, home_score: in
     cur = conn.cursor()
 
     # Get the prediction for this match
-    cur.execute("SELECT predicted_outcome FROM predictions WHERE match_id = ?", (match_id,))
+    cur.execute("SELECT prediction FROM predictions WHERE match_id = ?", (match_id,))
     row = cur.fetchone()
-    predicted = row["predicted_outcome"] if row else None
+    predicted = row["prediction"] if row else None
     correct = 1 if predicted == actual_outcome else 0
 
     cur.execute("DELETE FROM results WHERE match_id = ?", (match_id,))
