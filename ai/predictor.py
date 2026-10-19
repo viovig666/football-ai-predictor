@@ -219,22 +219,29 @@ class FootballPredictor:
                 model = self.models[name]
                 try:
                     p = model.predict_proba(features)[0]
+                    if np.isnan(p).any():
+                        print(f"[Predictor] {name} returned NaN, skipping")
+                        continue
                     probs_sum += weight * p
                 except Exception as e:
                     print(f"[Predictor] {name} failed: {e}")
 
-        # Normalize
-        probs = probs_sum / probs_sum.sum()
-
-        home_prob, draw_prob, away_prob = probs
-        confidence = int(max(probs) * 100)
-
-        if probs.argmax() == 0:
+        # Normalize — fallback to uniform if all models failed
+        total = probs_sum.sum()
+        if total <= 0 or np.isnan(total):
+            print("[Predictor] All models failed, using uniform fallback")
+            probs = np.array([0.40, 0.25, 0.35])
             prediction = "home"
-        elif probs.argmax() == 1:
-            prediction = "draw"
+            confidence = 35
         else:
-            prediction = "away"
+            probs = probs_sum / total
+            confidence = int(max(probs) * 100)
+            if probs.argmax() == 0:
+                prediction = "home"
+            elif probs.argmax() == 1:
+                prediction = "draw"
+            else:
+                prediction = "away"
 
         # ── Secondary predictions (Over/Under 2.5, BTTS) ──────────────────
         expected_goals = match_data.get("expected_goals", features["expected_goals"].values[0])
