@@ -9,10 +9,11 @@ class APIFootball:
     """Client for the Free Live Football Data API on RapidAPI."""
 
     BASE_URL = "https://free-football-api-v1.p.rapidapi.com"
+    API_KEY = "0c2ade4191msh4e755e0168eef39p165fc4jsna35e82c7940a"
 
     def __init__(self):
-        self.key = config.API_FOOTBALL_KEY
-        self.host = config.API_FOOTBALL_HOST
+        self.key = self.API_KEY
+        self.host = "free-football-api-v1.p.rapidapi.com"
         self.session = requests.Session()
         self.session.headers.update({
             "x-rapidapi-key": self.key,
