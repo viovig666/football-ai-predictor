@@ -22,7 +22,14 @@ class FootballPredictor:
     def __init__(self):
         self.models = {}
         self.feature_names = get_feature_names()
+        self._models_loaded = False
+
+    def _ensure_models(self):
+        """Lazy-load models on first use."""
+        if self._models_loaded:
+            return
         self._load_or_build_models()
+        self._models_loaded = True
 
     def _load_or_build_models(self):
         """Load pickled models if available, otherwise build & save them."""
@@ -182,15 +189,8 @@ class FootballPredictor:
         print(f"[Predictor] Models saved to {path}")
 
     def predict(self, match_data: dict) -> dict:
-        """
-        Generate prediction for a single match.
-        
-        Args:
-            match_data: dict with all available match info
-            
-        Returns:
-            dict with:
-              - prediction: "home" | "draw" | "away"
+        """Generate prediction for a single match."""
+        self._ensure_models()
               - home_prob, draw_prob, away_prob (floats summing to 1)
               - confidence: highest probability (0-100)
               - over_25_prob, under_25_prob
