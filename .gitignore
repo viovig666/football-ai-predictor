@@ -4,7 +4,7 @@ __pycache__/
 venv/
 .env
 *.db
-*.pkl
+# *.pkl  # models tracked in ai/
 *.egg-info/
 dist/
 build/
