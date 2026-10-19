@@ -162,18 +162,24 @@ def api_predict(match_id):
     away_id = match.get("away_team_id")
     league_id = match.get("league_id", "2001")
 
+    import logging
+    logging.warning(f"[api_predict] match_id={match_id} enrichment: home_id={home_id} away_id={away_id} league_id={league_id}")
+
     if home_id:
         hs = ts.get_team_stats(home_id, league_id)
+        logging.warning(f"[api_predict] home stats: {hs}")
         match["home_form"] = []
         match["home_goals_scored_avg"] = hs["goals_scored_avg"]
         match["home_goals_conceded_avg"] = hs["goals_conceded_avg"]
     if away_id:
         as_ = ts.get_team_stats(away_id, league_id)
+        logging.warning(f"[api_predict] away stats: {as_}")
         match["away_form"] = []
         match["away_goals_scored_avg"] = as_["goals_scored_avg"]
         match["away_goals_conceded_avg"] = as_["goals_conceded_avg"]
     if home_id and away_id:
         h2h = ts.get_h2h(home_id, away_id)
+        logging.warning(f"[api_predict] h2h: {h2h}")
         match["h2h_home_wins"] = h2h["h2h_home_wins"]
         match["h2h_draws"] = h2h["h2h_draws"]
         match["h2h_away_wins"] = h2h["h2h_away_wins"]
@@ -181,6 +187,9 @@ def api_predict(match_id):
         match["home_league_pos"] = ts.get_league_position(home_id, league_id) or 8
     if away_id and league_id:
         match["away_league_pos"] = ts.get_league_position(away_id, league_id) or 8
+
+    logging.warning(f"[api_predict] enriched match keys: {list(match.keys())}")
+    logging.warning(f"[api_predict] enriched match: home_goals_scored_avg={match.get('home_goals_scored_avg')} away_goals_scored_avg={match.get('away_goals_scored_avg')} h2h_draws={match.get('h2h_draws')}")
 
     # Step 4: Check DB cache (within 6 hours) — best effort
     try:
