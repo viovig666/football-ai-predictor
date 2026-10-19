@@ -1,7 +1,7 @@
 # app.py — Flask main application for Football AI Predictor
 # v3 — force fresh Railway build
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 from flask_cors import CORS
 import sqlite3
 import os
@@ -27,6 +27,16 @@ api_football = APIFootball()
 def index():
     """Serve the main SPA page."""
     return render_template("index.html")
+
+
+@app.route("/static/<path:filename>")
+def serve_static(filename):
+    """Serve static files with no-cache headers to bypass Railway CDN."""
+    response = send_from_directory(app.static_folder, filename)
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 @app.route("/api/matches")
