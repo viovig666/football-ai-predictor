@@ -243,6 +243,8 @@ class FootballPredictor:
             else:
                 prediction = "away"
 
+        home_prob, draw_prob, away_prob = probs
+
         # ── Secondary predictions (Over/Under 2.5, BTTS) ──────────────────
         expected_goals = match_data.get("expected_goals", features["expected_goals"].values[0])
         # Poisson-based O/U
