@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 
 import config
 from ai.predictor import FootballPredictor
-from data.db import init_db, get_matches, get_prediction, save_prediction, save_result
+from data.db import init_db, get_matches, get_prediction, save_prediction, save_result, insert_match
 from data.api_football import APIFootball
 from data.team_stats import get_team_stats
 
