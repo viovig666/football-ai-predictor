@@ -204,12 +204,6 @@ class FootballPredictor:
     def predict(self, match_data: dict) -> dict:
         """Generate prediction for a single match."""
         self._ensure_models()
-              - home_prob, draw_prob, away_prob (floats summing to 1)
-              - confidence: highest probability (0-100)
-              - over_25_prob, under_25_prob
-              - btts_yes_prob, btts_no_prob
-              - model_version
-        """
         # Engineer features
         features = engineer_features(match_data)
 
