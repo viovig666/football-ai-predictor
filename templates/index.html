@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FootPredict AI — AI-Powered Football Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ─── Header ─────────────────────────────────────────────────────── -->
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <span class="logo-icon">⚽</span>
+            <span class="logo-text">FootPredict<span class="logo-ai">AI</span></span>
+        </div>
+        <nav class="nav-tabs" id="navTabs">
+            <button class="tab-btn active" data-filter="today">Today</button>
+            <button class="tab-btn" data-filter="tomorrow">Tomorrow</button>
+            <button class="tab-btn" data-filter="week">This Week</button>
+        </nav>
+        <div class="header-right">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search teams or matches..." autocomplete="off">
+            </div>
+            <div class="accuracy-badge" id="accuracyBadge" title="Platform prediction accuracy">
+                <span class="acc-label">Accuracy</span>
+                <span class="acc-value" id="accuracyValue">—</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ─── Filter Bar ────────────────────────────────────────────────── -->
+<div class="filter-bar">
+    <div class="filter-bar-inner">
+        <div class="quick-filters">
+            <button class="qf-btn active" data-market="all">All Predictions</button>
+            <button class="qf-btn" data-market="1x2">1X2</button>
+            <button class="qf-btn" data-market="over25">Over 2.5</button>
+            <button class="qf-btn" data-market="btts">BTTS</button>
+            <button class="qf-btn" data-market="high-conf">High Confidence</button>
+        </div>
+        <div class="league-filter">
+            <select id="leagueSelect">
+                <option value="">All Leagues</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Main Content ──────────────────────────────────────────────── -->
+<main class="main">
+    <!-- Stats Banner -->
+    <div class="stats-banner" id="statsBanner">
+        <div class="stat-item">
+            <span class="stat-value" id="totalMatches">—</span>
+            <span class="stat-label">Matches</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="avgConfidence">—</span>
+            <span class="stat-label">Avg Confidence</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value" id="platformAccuracy">—</span>
+            <span class="stat-label">Platform Accuracy</span>
+        </div>
+    </div>
+
+    <!-- Match Grid -->
+    <div class="match-grid" id="matchGrid">
+        <div class="loading-state" id="loadingState">
+            <div class="spinner"></div>
+            <p>Loading matches...</p>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+        <span class="empty-icon">📅</span>
+        <h3>No matches found</h3>
+        <p>No matches scheduled for this date. Try another day.</p>
+    </div>
+</main>
+
+<!-- ─── Match Detail Modal ───────────────────────────────────────── -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="matchModal">
+        <button class="modal-close" id="modalClose">×</button>
+        <div class="modal-content" id="modalContent">
+            <!-- Dynamically populated -->
+        </div>
+    </div>
+</div>
+
+<!-- ─── Footer ────────────────────────────────────────────────────── -->
+<footer class="footer">
+    <div class="footer-inner">
+        <p>© 2026 FootPredict AI — AI-Powered Football Intelligence</p>
+        <p class="disclaimer">
+            Predictions are for informational purposes only. 
+            Gamble responsibly. 18+
+        </p>
+    </div>
+</footer>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
