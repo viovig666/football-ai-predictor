@@ -1,7 +1,7 @@
 # data/flashscore.py — Fallback scraper using DrissionPage/stealth browser
 # Used when API-Football is unavailable or rate-limited
 
-from DrissionPage._common import ChromiumOptions, ChromiumDriver
+from DrissionPage import ChromiumOptions, ChromiumPage
 import time
 
 
@@ -26,7 +26,7 @@ class FlashscoreScraper:
             opts.set_argument("--no-sandbox")
             opts.set_argument("--disable-dev-shm-usage")
             opts.set_argument("--disable-gpu")
-            self.driver = ChromiumDriver(addr=9222, options=opts)
+            self.driver = ChromiumPage(addr=9222, options=opts)
         return self.driver
 
     def get_matches_by_date(self, date: str) -> list:
