@@ -46,10 +46,12 @@ def api_matches():
     Get matches for a date.
     Query params:
       date: today | tomorrow | YYYY-MM-DD  (default: today)
+      refresh: if set, force-refresh from API and update DB
       league_id: optional filter
     """
     date_str = request.args.get("date", "today")
     league_id = request.args.get("league_id", None)
+    force_refresh = request.args.get("refresh") is not None
 
     if date_str == "today":
         target_date = datetime.now().strftime("%Y-%m-%d")
@@ -58,35 +60,23 @@ def api_matches():
     else:
         target_date = date_str
 
+    # Try DB first
     matches = get_matches(app.config["DATABASE"], date=target_date, league_id=league_id)
 
-    # Force refresh: DELETE old matches and refetch from API
-    if request.args.get("refresh"):
+    # Force refresh: delete old matches for this date and refetch from API
+    if force_refresh or not matches:
         api_football_client = APIFootball()
         raw = api_football_client.get_matches_by_date(target_date)
         if raw:
-            # Delete old matches for this date
             conn2 = sqlite3.connect(app.config["DATABASE"])
             cur2 = conn2.cursor()
             cur2.execute("DELETE FROM matches WHERE date = ?", (target_date,))
             conn2.commit()
             conn2.close()
-            # Insert fresh matches
             for m in raw:
                 m["date"] = target_date
-                from data.db import insert_match
-                m["id"] = insert_match(app.config["DATABASE"], m)
+                insert_match(app.config["DATABASE"], m)
             matches = raw
-
-    # If no matches in DB, try fetching from API
-    if not matches:
-        raw = api_football.get_matches_by_date(target_date)
-        # Store demo/API matches in DB for prediction lookup
-        for m in raw:
-            m["date"] = target_date
-            from data.db import insert_match
-            m["id"] = insert_match(app.config["DATABASE"], m)
-        matches = raw
 
     return jsonify({"date": target_date, "matches": matches})
 

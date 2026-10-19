@@ -176,9 +176,26 @@ def save_result(db_path: str, match_id: int, actual_outcome: str, home_score: in
 
 
 def insert_match(db_path: str, match_data: dict) -> int:
-    """Insert a new match and return its ID."""
+    """
+    Insert a new match and return its ID.
+    Skips insertion if a match with the same external_id and date already exists (dedup).
+    """
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
+
+    # Deduplicate: skip if this external_id + date combo already exists
+    external_id = match_data.get("external_id")
+    date_val = match_data.get("date")
+    if external_id and date_val:
+        cur.execute(
+            "SELECT id FROM matches WHERE external_id = ? AND date = ?",
+            (external_id, date_val)
+        )
+        existing = cur.fetchone()
+        if existing:
+            conn.close()
+            return existing[0]
+
     cur.execute("""
         INSERT INTO matches (external_id, date, time, home_team, away_team,
                             home_team_id, away_team_id,
