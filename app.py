@@ -1,5 +1,4 @@
 # app.py — Flask main application for Football AI Predictor
-# v2 — football-data.org API active
 
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
@@ -145,17 +144,6 @@ def api_leagues():
     """List available leagues from API."""
     leagues = api_football.get_leagues()
     return jsonify({"leagues": leagues})
-
-
-@app.route("/api/debug")
-def api_debug():
-    """Debug: show environment and API status."""
-    import os
-    key = os.environ.get("FOOTBALL_DATA_API_KEY", "NOT SET")
-    return jsonify({
-        "api_key_env": key[:8] + "..." if key and key != "NOT SET" else "NOT SET",
-        "api_key_attr": api_football.key[:8] + "...",
-    })
 
 
 @app.route("/api/accuracy")

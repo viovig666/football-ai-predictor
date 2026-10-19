@@ -29,21 +29,16 @@ class APIFootball:
                 timeout=15
             )
             if r.status_code == 429:
-                print(f"[APIFootball] Rate limited")
                 return None
             r.raise_for_status()
             return r.json()
         except Exception as e:
-            print(f"[APIFootball] Error calling {endpoint}: {e}")
             return None
 
     def get_matches_by_date(self, date: str) -> list:
         """Get all matches for a given date (YYYY-MM-DD)."""
-        print(f"[APIFootball] Fetching matches for {date}...")
         data = self._get("matches", {"date": date})
-        print(f"[APIFootball] _get returned: {type(data).__name__}, keys={list(data.keys()) if isinstance(data, dict) else 'N/A'}")
         if not data:
-            print(f"[APIFootball] Falling back to demo data")
             return self._demo_matches(date)
         matches = []
         for f in data.get("matches", []):
