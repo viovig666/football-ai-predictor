@@ -23,13 +23,26 @@ class FootballPredictor:
         self.models = {}
         self.feature_names = get_feature_names()
         self._models_loaded = False
+        self._trainer = None
 
     def _ensure_models(self):
         """Lazy-load models on first use."""
         if self._models_loaded:
             return
+        # First call: start background trainer, return immediately
+        # so gunicorn worker can respond to health checks
+        import threading
+        self._trainer = threading.Thread(target=self._bg_train, daemon=True)
+        self._trainer.start()
+        self._models_loaded = True
+
+    def _bg_train(self):
+        """Background thread: build & cache models, then set flag."""
+        import time
+        time.sleep(2)  # small grace period for gunicorn to start
         self._load_or_build_models()
         self._models_loaded = True
+        print("[Predictor] Background training complete.")
 
     def _load_or_build_models(self):
         """Load pickled models if available, otherwise build & save them."""
