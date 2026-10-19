@@ -149,29 +149,13 @@ def api_leagues():
 
 @app.route("/api/debug")
 def api_debug():
-    """Debug: test the football API directly."""
-    import requests
-    key = api_football.key
-    url = "https://api.football-data.org/v4/matches"
-    headers = {"X-Auth-Token": key}
-    params = {"date": "2026-10-19"}
-    try:
-        r = requests.get(url, headers=headers, params=params, timeout=15)
-        data = r.json()
-        return jsonify({
-            "status_code": r.status_code,
-            "api_key_used": key[:8] + "...",
-            "result_count": data.get("resultSet", {}).get("count", 0),
-            "matches_preview": [
-                {
-                    "home": m.get("homeTeam", {}).get("shortName"),
-                    "away": m.get("awayTeam", {}).get("shortName"),
-                }
-                for m in data.get("matches", [])[:3]
-            ]
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    """Debug: show environment and API status."""
+    import os
+    key = os.environ.get("FOOTBALL_DATA_API_KEY", "NOT SET")
+    return jsonify({
+        "api_key_env": key[:8] + "..." if key and key != "NOT SET" else "NOT SET",
+        "api_key_attr": api_football.key[:8] + "...",
+    })
 
 
 @app.route("/api/accuracy")
