@@ -505,10 +505,10 @@ function showLoading(show) {
   const loading = document.getElementById('loadingState');
   const empty = document.getElementById('emptyState');
   if (show) {
-    loading.style.display = 'flex';
-    empty.style.display = 'none';
+    if (loading) loading.style.display = 'flex';
+    if (empty) empty.style.display = 'none';
   } else {
-    loading.style.display = 'none';
+    if (loading) loading.style.display = 'none';
   }
 }
 
