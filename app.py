@@ -118,15 +118,18 @@ def api_predict(match_id):
 
     # Step 2: If not in DB (wiped on deploy), fetch from API for today + tomorrow
     if not match:
+        import logging
+        logging.warning(f"[api_predict] match_id={match_id} not in DB, attempting self-heal from API")
         api = APIFootball()
         today = datetime.now().strftime("%Y-%m-%d")
         tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
         for target_date in [today, tomorrow]:
             raw = api.get_matches_by_date(target_date)
+            logging.warning(f"[api_predict] API for {target_date} returned {len(raw)} matches")
             for m in raw:
-                # Map external_id from API to our DB id via insert_match (dedup)
                 m["date"] = target_date
                 db_id = insert_match(app.config["DATABASE"], m)
+                logging.warning(f"[api_predict] insert_match returned id={db_id} for {m.get('home_team')} vs {m.get('away_team')}")
                 if db_id == match_id:
                     match = m.copy()
                     match["id"] = db_id
