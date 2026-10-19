@@ -4,6 +4,7 @@ import pickle
 import os
 import numpy as np
 import pandas as pd
+import threading
 
 from ai.features import engineer_features, get_feature_names
 import config
@@ -24,25 +25,16 @@ class FootballPredictor:
         self.feature_names = get_feature_names()
         self._models_loaded = False
         self._trainer = None
+        self._ready_event = threading.Event()  # blocks predictions until models are ready
 
     def _ensure_models(self):
-        """Lazy-load models on first use."""
-        if self._models_loaded:
+        """Block until models are fully trained and loaded."""
+        if self._models_loaded and self.models:
             return
-        # First call: start background trainer, return immediately
-        # so gunicorn worker can respond to health checks
-        import threading
-        self._trainer = threading.Thread(target=self._bg_train, daemon=True)
-        self._trainer.start()
-        self._models_loaded = True
-
-    def _bg_train(self):
-        """Background thread: build & cache models, then set flag."""
-        import time
-        time.sleep(2)  # small grace period for gunicorn to start
+        # First call: sync load or train (fast, ~3-5s for 20k samples)
         self._load_or_build_models()
         self._models_loaded = True
-        print("[Predictor] Background training complete.")
+        self._ready_event.set()  # unblock any waiting requests
 
     def _load_or_build_models(self):
         """Load pickled models if available, otherwise build & save them."""
