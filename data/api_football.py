@@ -39,8 +39,11 @@ class APIFootball:
 
     def get_matches_by_date(self, date: str) -> list:
         """Get all matches for a given date (YYYY-MM-DD)."""
+        print(f"[APIFootball] Fetching matches for {date}...")
         data = self._get("matches", {"date": date})
+        print(f"[APIFootball] _get returned: {type(data).__name__}, keys={list(data.keys()) if isinstance(data, dict) else 'N/A'}")
         if not data:
+            print(f"[APIFootball] Falling back to demo data")
             return self._demo_matches(date)
         matches = []
         for f in data.get("matches", []):
