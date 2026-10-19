@@ -207,12 +207,7 @@ def api_predict(match_id):
     except Exception:
         pass  # DB may be full/empty — continue without cache
 
-    return jsonify({"prediction": prediction, "_debug": {
-        "match_id": match_id,
-        "home_goals_scored_avg": match.get("home_goals_scored_avg"),
-        "away_goals_scored_avg": match.get("away_goals_scored_avg"),
-        "h2h_draws": match.get("h2h_draws"),
-    }})
+    return jsonify({"prediction": prediction})
 
 
 @app.route("/api/predict/batch", methods=["POST"])
