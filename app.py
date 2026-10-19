@@ -60,6 +60,24 @@ def api_matches():
 
     matches = get_matches(app.config["DATABASE"], date=target_date, league_id=league_id)
 
+    # Force refresh: DELETE old matches and refetch from API
+    if request.args.get("refresh"):
+        api_football_client = APIFootball()
+        raw = api_football_client.get_matches_by_date(target_date)
+        if raw:
+            # Delete old matches for this date
+            conn2 = sqlite3.connect(app.config["DATABASE"])
+            cur2 = conn2.cursor()
+            cur2.execute("DELETE FROM matches WHERE date = ?", (target_date,))
+            conn2.commit()
+            conn2.close()
+            # Insert fresh matches
+            for m in raw:
+                m["date"] = target_date
+                from data.db import insert_match
+                m["id"] = insert_match(app.config["DATABASE"], m)
+            matches = raw
+
     # If no matches in DB, try fetching from API
     if not matches:
         raw = api_football.get_matches_by_date(target_date)
