@@ -1,5 +1,47 @@
 // app.js — FootPredict AI Frontend Logic
 
+// ─── Auto-refresh (live updates every 60s) ──────────────────────────
+let refreshTimer = null;
+
+function startAutoRefresh() {
+  // Refresh every 60 seconds for live match data
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(async () => {
+    try {
+      const data = await fetchMatches(state.currentDate === 'today' ? 'today' : state.currentDate);
+      const newMatches = data.matches || [];
+
+      // Check if anything changed (score, minute, status)
+      const changed = newMatches.some((nm, i) => {
+        const om = state.matches[i];
+        if (!om) return true;
+        return om.home_score !== nm.home_score ||
+               om.away_score !== nm.away_score ||
+               om.status !== nm.status;
+      });
+
+      if (changed) {
+        state.matches = newMatches;
+        await renderAllMatches();
+        // Brief flash on updated cards
+        document.querySelectorAll('.match-card').forEach(card => {
+          card.classList.add('updated');
+          setTimeout(() => card.classList.remove('updated'), 800);
+        });
+      }
+    } catch (err) {
+      console.warn('Auto-refresh failed:', err.message);
+    }
+  }, 60000); // 60 seconds
+}
+
+function stopAutoRefresh() {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+}
+
 // ─── State ────────────────────────────────────────────────────────────
 const state = {
   currentDate: 'today',
@@ -69,6 +111,7 @@ async function loadInitialData() {
     renderLeagues(leaguesData);
     renderStatsBanner();
     await renderAllMatches();
+    startAutoRefresh();  // ← live updates every 60s
   } catch (err) {
     console.error('Failed to load initial data:', err);
     showError('Failed to load data. Please refresh.');
