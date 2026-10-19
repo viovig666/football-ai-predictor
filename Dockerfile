@@ -12,5 +12,5 @@ COPY . .
 # Expose port
 EXPOSE 8080
 
-# Run
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+# Run with 300s timeout to allow AI model training on first boot
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--timeout", "300", "--workers", "2", "app:app"]
