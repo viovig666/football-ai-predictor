@@ -115,6 +115,9 @@ def api_predict(match_id):
     """
     Generate (or retrieve cached) AI prediction for a match.
     Uses feature engineering + ensemble model.
+
+    If the local DB has no match (wiped on deploy), fetches match data
+    directly from the API for today and tomorrow so predictions still work.
     """
     conn = sqlite3.connect(app.config["DATABASE"])
     conn.row_factory = sqlite3.Row
@@ -123,10 +126,27 @@ def api_predict(match_id):
     row = cur.fetchone()
     conn.close()
 
-    if not row:
-        return jsonify({"error": "Match not found"}), 404
+    match = dict(row) if row else None
 
-    match = dict(row)
+    # DB wiped or match not found — try fetching from API for today + tomorrow
+    if not match:
+        from datetime import date, timedelta
+        api_football = APIFootball()
+        for target_date in [date.today().isoformat(), (date.today() + timedelta(days=1)).isoformat()]:
+            raw = api_football.get_matches_by_date(target_date)
+            if raw:
+                for m in raw:
+                    m["date"] = target_date
+                    mid = insert_match(app.config["DATABASE"], m)
+                    if mid == match_id:
+                        match = m.copy()
+                        match["id"] = mid
+                        break
+                if match:
+                    break
+
+    if not match:
+        return jsonify({"error": "Match not found"}), 404
 
     # Enrich match with real team stats from API
     ts = get_team_stats()
@@ -136,7 +156,7 @@ def api_predict(match_id):
 
     if home_id:
         hs = ts.get_team_stats(home_id, league_id)
-        match["home_form"] = []  # not needed with form_score
+        match["home_form"] = []
         match["home_goals_scored_avg"] = hs["goals_scored_avg"]
         match["home_goals_conceded_avg"] = hs["goals_conceded_avg"]
     if away_id:
