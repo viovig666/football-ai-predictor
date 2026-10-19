@@ -19,6 +19,8 @@ def init_db(db_path: str):
             time TEXT,
             home_team TEXT NOT NULL,
             away_team TEXT NOT NULL,
+            home_team_id INTEGER,
+            away_team_id INTEGER,
             home_score INTEGER,
             away_score INTEGER,
             league TEXT,
@@ -179,14 +181,17 @@ def insert_match(db_path: str, match_data: dict) -> int:
     cur = conn.cursor()
     cur.execute("""
         INSERT INTO matches (external_id, date, time, home_team, away_team,
+                            home_team_id, away_team_id,
                             home_score, away_score, league, country, league_id, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         match_data.get("external_id"),
         match_data.get("date"),
         match_data.get("time"),
         match_data.get("home_team"),
         match_data.get("away_team"),
+        match_data.get("home_team_id"),
+        match_data.get("away_team_id"),
         match_data.get("home_score"),
         match_data.get("away_score"),
         match_data.get("league"),
