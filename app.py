@@ -12,6 +12,7 @@ import config
 from ai.predictor import FootballPredictor
 from data.db import init_db, get_matches, get_prediction, save_prediction, save_result
 from data.api_football import APIFootball
+from data.team_stats import get_team_stats
 
 app = Flask(__name__)
 CORS(app)
@@ -108,6 +109,32 @@ def api_predict(match_id):
         return jsonify({"error": "Match not found"}), 404
 
     match = dict(row)
+
+    # Enrich match with real team stats from API
+    ts = get_team_stats()
+    home_id = match.get("home_team_id")
+    away_id = match.get("away_team_id")
+    league_id = match.get("league_id")
+
+    if home_id:
+        hs = ts.get_team_stats(home_id, league_id)
+        match["home_form"] = []  # not needed with form_score
+        match["home_goals_scored_avg"] = hs["goals_scored_avg"]
+        match["home_goals_conceded_avg"] = hs["goals_conceded_avg"]
+    if away_id:
+        as_ = ts.get_team_stats(away_id, league_id)
+        match["away_form"] = []
+        match["away_goals_scored_avg"] = as_["goals_scored_avg"]
+        match["away_goals_conceded_avg"] = as_["goals_conceded_avg"]
+    if home_id and away_id:
+        h2h = ts.get_h2h(home_id, away_id)
+        match["h2h_home_wins"] = h2h["h2h_home_wins"]
+        match["h2h_draws"] = h2h["h2h_draws"]
+        match["h2h_away_wins"] = h2h["h2h_away_wins"]
+    if home_id and league_id:
+        match["home_league_pos"] = ts.get_league_position(home_id, league_id) or 8
+    if away_id and league_id:
+        match["away_league_pos"] = ts.get_league_position(away_id, league_id) or 8
 
     # Check if we already have a fresh prediction (within 6 hours)
     existing = get_prediction(app.config["DATABASE"], match_id)
