@@ -6,7 +6,23 @@ from flask_cors import CORS
 import sqlite3
 import os
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone as tz0
+from zoneinfo import ZoneInfo
+PARIS_TZ = ZoneInfo("Europe/Paris")
+
+
+def _paris_now():
+    """Get current time in Paris timezone."""
+    return datetime.now(PARIS_TZ)
+
+
+def _target_date(date_str: str) -> str:
+    """Convert 'today'/'tomorrow'/date to Paris-relative date string."""
+    if date_str == "today":
+        return _paris_now().strftime("%Y-%m-%d")
+    elif date_str == "tomorrow":
+        return (_paris_now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    return date_str
 
 import config
 from ai.predictor import FootballPredictor
@@ -54,9 +70,9 @@ def api_matches():
     force_refresh = request.args.get("refresh") is not None
 
     if date_str == "today":
-        target_date = datetime.now().strftime("%Y-%m-%d")
+        target_date = _paris_now().strftime("%Y-%m-%d")
     elif date_str == "tomorrow":
-        target_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        target_date = (_paris_now() + timedelta(days=1)).strftime("%Y-%m-%d")
     else:
         target_date = date_str
 
@@ -121,8 +137,8 @@ def api_predict(match_id):
         import logging
         logging.warning(f"[api_predict] match_id={match_id} not in DB, attempting self-heal from API")
         api = APIFootball()
-        today = datetime.now().strftime("%Y-%m-%d")
-        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        today = _paris_now().strftime("%Y-%m-%d")
+        tomorrow = (_paris_now() + timedelta(days=1)).strftime("%Y-%m-%d")
         for target_date in [today, tomorrow]:
             raw = api.get_matches_by_date(target_date)
             logging.warning(f"[api_predict] API for {target_date} returned {len(raw)} matches")
@@ -195,9 +211,9 @@ def api_predict_batch():
     date_str = data.get("date", "today")
 
     if date_str == "today":
-        target_date = datetime.now().strftime("%Y-%m-%d")
+        target_date = _paris_now().strftime("%Y-%m-%d")
     elif date_str == "tomorrow":
-        target_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        target_date = (_paris_now() + timedelta(days=1)).strftime("%Y-%m-%d")
     else:
         target_date = date_str
 
