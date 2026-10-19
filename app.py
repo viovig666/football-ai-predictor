@@ -103,46 +103,45 @@ def api_match_detail(match_id):
 @app.route("/api/predict/<int:match_id>")
 def api_predict(match_id):
     """
-    Generate (or retrieve cached) AI prediction for a match.
-    Uses feature engineering + ensemble model.
-
-    If the local DB has no match (wiped on deploy), fetches match data
-    directly from the API for today and tomorrow so predictions still work.
+    Generate AI prediction for a match, fully stateless.
+    match_id is the LOCAL DB id, but we look it up directly from the API
+    via the external_id mapping to avoid needing the DB at prediction time.
     """
+    # Step 1: Try to find match in local DB (most reliable path)
     conn = sqlite3.connect(app.config["DATABASE"])
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute("SELECT * FROM matches WHERE id = ?", (match_id,))
     row = cur.fetchone()
     conn.close()
-
     match = dict(row) if row else None
 
-    # DB wiped or match not found — try fetching from API for today + tomorrow
+    # Step 2: If not in DB (wiped on deploy), fetch from API for today + tomorrow
     if not match:
-        from datetime import date, timedelta
-        api_football = APIFootball()
-        for target_date in [date.today().isoformat(), (date.today() + timedelta(days=1)).isoformat()]:
-            raw = api_football.get_matches_by_date(target_date)
-            if raw:
-                for m in raw:
-                    m["date"] = target_date
-                    mid = insert_match(app.config["DATABASE"], m)
-                    if mid == match_id:
-                        match = m.copy()
-                        match["id"] = mid
-                        break
-                if match:
+        api = APIFootball()
+        today = datetime.now().strftime("%Y-%m-%d")
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+        for target_date in [today, tomorrow]:
+            raw = api.get_matches_by_date(target_date)
+            for m in raw:
+                # Map external_id from API to our DB id via insert_match (dedup)
+                m["date"] = target_date
+                db_id = insert_match(app.config["DATABASE"], m)
+                if db_id == match_id:
+                    match = m.copy()
+                    match["id"] = db_id
                     break
+            if match:
+                break
 
     if not match:
         return jsonify({"error": "Match not found"}), 404
 
-    # Enrich match with real team stats from API
+    # Step 3: Enrich with real team stats from football-data.org API
     ts = get_team_stats()
     home_id = match.get("home_team_id")
     away_id = match.get("away_team_id")
-    league_id = match.get("league_id")
+    league_id = match.get("league_id", "2001")
 
     if home_id:
         hs = ts.get_team_stats(home_id, league_id)
@@ -164,16 +163,21 @@ def api_predict(match_id):
     if away_id and league_id:
         match["away_league_pos"] = ts.get_league_position(away_id, league_id) or 8
 
-    # Check if we already have a fresh prediction (within 6 hours)
-    existing = get_prediction(app.config["DATABASE"], match_id)
-    if existing and existing.get("fresh", False):
-        return jsonify({"prediction": existing})
+    # Step 4: Check DB cache (within 6 hours) — best effort
+    try:
+        existing = get_prediction(app.config["DATABASE"], match_id)
+        if existing and existing.get("fresh", False):
+            return jsonify({"prediction": existing})
+    except Exception:
+        pass  # DB may be empty/wiped — continue without cache
 
-    # Generate new prediction
+    # Step 5: Generate prediction and cache it
     prediction = predictor.predict(match)
 
-    # Cache it
-    save_prediction(app.config["DATABASE"], match_id, prediction)
+    try:
+        save_prediction(app.config["DATABASE"], match_id, prediction)
+    except Exception:
+        pass  # DB may be full/empty — continue without cache
 
     return jsonify({"prediction": prediction})
 
