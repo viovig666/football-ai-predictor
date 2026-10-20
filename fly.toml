@@ -1,22 +1,14 @@
 # fly.toml — FootPredict AI on Fly.io
-# Place in: /home/viovig/cd/football-ai-predictor/fly.toml
-#
-# Deploy:
-#   1. fly launch --no-deploy  (inside the project dir)
-#   2. fly secrets set FOOTBALL_DATA_API_KEY="..."
-#      fly secrets set API_FOOTBALL_KEY="..."
-#   3. fly deploy
-#
-# Docs:  https://fly.io/docs/reference/configuration/
+# Uses Nixpacks (no Docker needed — Fly.io builds in the cloud)
 
 app = "football-ai-predictor"
 
 [build]
-  builder = "docker"
-  dockerfile = "Dockerfile"
+  builder = "nixpacks"
+  nixpacks_ver = "latest"
 
 [deploy]
-  release_command = "python -c \"from ai.predictor import FootballPredictor; FootballPredictor()\""
+  release_command = "echo 'Models will train on first boot'"
   restart_limit = 10
 
 [http_service]
@@ -32,7 +24,7 @@ app = "football-ai-predictor"
   cpu_kind = "shared"
   cpus = 1
 
-# SQLite data persistence (survives reboots)
+# SQLite data persistence
 [[mounts]]
   source = "footpredict_data"
   destination = "/app/data"
