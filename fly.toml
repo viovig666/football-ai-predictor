@@ -4,8 +4,8 @@
 app = "football-ai-predictor"
 
 [build]
-  builder = "nixpacks"
-  nixpacks_ver = "latest"
+  builder = "docker"
+  dockerfile = "Dockerfile"
 
 [deploy]
   release_command = "echo 'Models will train on first boot'"
