@@ -371,7 +371,7 @@ function startAutoRefresh() {
       });
       if (changed) {
         state.matches = newMatches;
-        await renderAllMatches();
+        renderAllMatches();
         document.querySelectorAll('.match-card').forEach(c => { c.classList.add('updated'); setTimeout(() => c.classList.remove('updated'), 800); });
       }
     } catch (_) {}
@@ -401,7 +401,7 @@ async function loadInitialData() {
     state.matches = md.matches || [];
     renderAccuracy({});
     renderStatsBanner();
-    await renderAllMatches();
+    renderAllMatches();
   } catch (e) { console.warn('loadInitialData error:', e); }
   finally { showLoading(false); }
 
@@ -425,7 +425,7 @@ function setupEventListeners() {
       showLoading(true);
       try {
         state.matches = (await fetchMatches(state.currentDate === 'today' ? 'today' : state.currentDate)).matches || [];
-        await renderAllMatches(); renderStatsBanner();
+        renderAllMatches(); renderStatsBanner();
       } finally { showLoading(false); }
     });
   });
@@ -444,7 +444,7 @@ function setupEventListeners() {
     showLoading(true);
     try {
       state.matches = (await fetchMatches(state.currentDate === 'today' ? 'today' : state.currentDate)).matches || [];
-      await renderAllMatches(); renderStatsBanner();
+      renderAllMatches(); renderStatsBanner();
     } finally { showLoading(false); }
   });
 
