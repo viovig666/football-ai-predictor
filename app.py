@@ -188,7 +188,7 @@ def api_predict(match_id):
     if away_id and league_id:
         match["away_league_pos"] = ts.get_league_position(away_id, league_id) or 8
 
-    # Step 3b: Generate synthetic weather + odds if not present
+    # Step 3b: Generate synthetic weather if not present
     import random
     if not match.get("weather"):
         weather_options = ["Clear", "Cloudy", "Rain", "Light Rain", "Partly Cloudy", "Overcast"]
@@ -201,16 +201,6 @@ def api_predict(match_id):
             "Light Rain": "🌦️", "Partly Cloudy": "⛅", "Overcast": "☁️",
         }
         match["weather_icon"] = weather_icon_map.get(match["weather"], "🌤️")
-
-    # Step 3c: Generate indicative betting odds from model probabilities
-    if not match.get("home_odds"):
-        # Implied odds from model probabilities (no vig)
-        home_p = prediction.get("home_prob", 0.40)
-        draw_p = prediction.get("draw_prob", 0.28)
-        away_p = prediction.get("away_prob", 0.32)
-        match["home_odds"] = round(1.0 / home_p, 2) if home_p > 0 else 2.50
-        match["draw_odds"] = round(1.0 / draw_p, 2) if draw_p > 0 else 3.50
-        match["away_odds"] = round(1.0 / away_p, 2) if away_p > 0 else 3.10
 
     logging.warning(f"[api_predict] enriched match keys: {list(match.keys())}")
     logging.warning(f"[api_predict] enriched match: home_goals_scored_avg={match.get('home_goals_scored_avg')} away_goals_scored_avg={match.get('away_goals_scored_avg')} h2h_draws={match.get('h2h_draws')}")
@@ -225,6 +215,17 @@ def api_predict(match_id):
 
     # Step 5: Generate prediction and cache it
     prediction = predictor.predict(match)
+
+    # Step 6: Calculate indicative odds from model probabilities (no vig)
+    home_p = prediction.get("home_prob", 0.40)
+    draw_p = prediction.get("draw_prob", 0.28)
+    away_p = prediction.get("away_prob", 0.32)
+    match["home_odds"] = round(1.0 / home_p, 2) if home_p > 0 else 2.50
+    match["draw_odds"] = round(1.0 / draw_p, 2) if draw_p > 0 else 3.50
+    match["away_odds"] = round(1.0 / away_p, 2) if away_p > 0 else 3.10
+    prediction["home_odds"] = match["home_odds"]
+    prediction["draw_odds"] = match["draw_odds"]
+    prediction["away_odds"] = match["away_odds"]
 
     try:
         save_prediction(app.config["DATABASE"], match_id, prediction)
