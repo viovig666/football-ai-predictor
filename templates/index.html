@@ -374,7 +374,9 @@ function startAutoRefresh() {
 async function fetchMatches(date) {
   const p = new URLSearchParams({ date });
   if (state.currentLeague) p.set('league_id', state.currentLeague);
-  return fetch(`${API_BASE}/api/matches?${p}`).then(r => r.json());
+  const url = `${API_BASE}/api/matches?${p}`;
+  console.log('[DEBUG] fetchMatches URL:', url);
+  return fetch(url).then(r => { console.log('[DEBUG] fetchMatches status:', r.status); return r.json(); });
 }
 async function fetchPrediction(id) { return fetch(`${API_BASE}/api/predict/${id}`).then(r => r.json()).then(d => d.prediction); }
 async function fetchAccuracy() { return fetch(`${API_BASE}/api/accuracy`).then(r => r.json()); }
@@ -390,12 +392,14 @@ async function loadInitialData() {
   // Show loading state while fetching initial data — but render matches as soon as we have them
   showLoading(true);
   try {
-    const md = await fetchMatches('today').catch(e => { console.warn('matches failed:', e); return { matches: [] }; });
+    console.log('[DEBUG] loadInitialData: fetching matches...');
+    const md = await fetchMatches('today').catch(e => { console.error('matches failed:', e); return { matches: [] }; });
+    console.log('[DEBUG] loadInitialData: got', md.matches?.length, 'matches');
     state.matches = md.matches || [];
     renderAccuracy({});
     renderStatsBanner();
     renderAllMatches();
-  } catch (e) { console.warn('loadInitialData error:', e); }
+  } catch (e) { console.error('loadInitialData error:', e); }
   finally { showLoading(false); }
 
   // Fetch remaining data in background, update UI when ready
