@@ -394,20 +394,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadInitialData() {
+  // Show loading state while fetching initial data — but render matches as soon as we have them
   showLoading(true);
   try {
-    // Fetch all data in parallel — each wrapped individually so one failure doesn't block all
-    const [md, ad, ld] = await Promise.all([
-      fetchMatches('today').catch(e => { console.warn('matches API failed:', e); return { matches: [] }; }),
-      fetchAccuracy().catch(e => { console.warn('accuracy API failed:', e); return {}; }),
-      fetchLeagues().catch(e => { console.warn('leagues API failed:', e); return { leagues: [] }; }),
-    ]);
+    const md = await fetchMatches('today').catch(e => { console.warn('matches failed:', e); return { matches: [] }; });
     state.matches = md.matches || [];
-    state.platformAccuracy = ad;
-    renderAccuracy(ad); renderLeagues(ld.leagues||[]); renderStatsBanner();
+    renderAccuracy({});
+    renderStatsBanner();
     await renderAllMatches();
-  } catch (e) { showError('Failed to load. Refresh to retry.'); }
+  } catch (e) { console.warn('loadInitialData error:', e); }
   finally { showLoading(false); }
+
+  // Fetch remaining data in background, update UI when ready
+  fetchAccuracy().then(ad => {
+    state.platformAccuracy = ad;
+    renderAccuracy(ad);
+  }).catch(() => {});
+
+  fetchLeagues().then(ld => {
+    renderLeagues(ld.leagues || []);
+  }).catch(() => {});
 }
 
 function setupEventListeners() {
