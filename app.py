@@ -6,6 +6,7 @@ from flask_cors import CORS
 import sqlite3
 import os
 import json
+import logging
 from datetime import datetime, timedelta, timezone as tz0
 from zoneinfo import ZoneInfo
 PARIS_TZ = ZoneInfo("Europe/Paris")
@@ -295,24 +296,38 @@ def api_accuracy():
         conn = sqlite3.connect(app.config["DATABASE"])
         conn.row_factory = sqlite3.Row
         cur = conn.cursor()
-        cur.execute("""
-            SELECT
-                COUNT(*) as total,
-                SUM(CASE WHEN actual_outcome = predicted_outcome THEN 1 ELSE 0 END) as correct
-            FROM results r
-            JOIN predictions p ON p.match_id = r.match_id
-        """)
-        row = cur.fetchone()
-        conn.close()
 
-        if row and row["total"] > 0:
-            accuracy = round(row["correct"] / row["total"] * 100, 1)
+        # Check if results + predictions tables exist with required columns
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('results','predictions')")
+        tables = {r[0] for r in cur.fetchall()}
+        if tables == {'results', 'predictions'}:
+            cur.execute("PRAGMA table_info(results)")
+            results_cols = {r[1] for r in cur.fetchall()}
+            cur.execute("PRAGMA table_info(predictions)")
+            pred_cols = {r[1] for r in cur.fetchall()}
+
+            if 'actual_outcome' in results_cols and 'predicted_outcome' in pred_cols:
+                cur.execute("""
+                    SELECT COUNT(*) as total,
+                           SUM(CASE WHEN actual_outcome = predicted_outcome THEN 1 ELSE 0 END) as correct
+                    FROM results r
+                    JOIN predictions p ON p.match_id = r.match_id
+                """)
+                row = cur.fetchone()
+                total = row["total"] if row else 0
+                correct = row["correct"] if row else 0
+                accuracy = round(correct / total * 100, 1) if total > 0 else None
+            else:
+                total = correct = 0
+                accuracy = None
         else:
+            total = correct = 0
             accuracy = None
 
+        conn.close()
         return jsonify({
-            "total_predictions": row["total"] if row else 0,
-            "correct_predictions": row["correct"] if row else 0,
+            "total_predictions": total,
+            "correct_predictions": correct,
             "accuracy_percent": accuracy
         })
     except Exception as e:
