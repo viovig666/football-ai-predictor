@@ -481,38 +481,49 @@ async function renderAllMatches() {
     if (e) { e.style.display = 'grid'; e.style.gridColumn = '1 / -1'; }
     return;
   }
-  const e = document.getElementById('emptyState');
-  if (e) e.style.display = 'none';
-
-  // Prefetch ALL predictions in parallel with per-match timeout
-  const predResults = await Promise.allSettled(
-    list.map(m =>
-      new Promise(resolve => {
-        const tid = setTimeout(() => resolve(makeDefaultPred()), 3000);
-        fetchPrediction(m.id)
-          .then(pred => { clearTimeout(tid); resolve(pred); })
-          .catch(() => { clearTimeout(tid); resolve(makeDefaultPred()); });
-      })
-    )
-  );
-  // Store predictions in state
-  list.forEach((m, i) => { state.predictions[m.id] = predResults[i].status === 'fulfilled' ? predResults[i].value : makeDefaultPred(); });
-
-  // Build and render cards immediately as predictions are ready
+  // Prefetch predictions in parallel with per-match timeout; render cards immediately with defaults, update as results arrive
   grid.innerHTML = '';
-  for (let i = 0; i < list.length; i++) {
-    const card = await buildMatchCard(list[i]);
+  const predFutures = list.map(m => {
+    return new Promise(resolve => {
+      const tid = setTimeout(() => resolve({ id: m.id, pred: makeDefaultPred() }), 3000);
+      fetchPrediction(m.id)
+        .then(pred => { clearTimeout(tid); resolve({ id: m.id, pred }); })
+        .catch(() => { clearTimeout(tid); resolve({ id: m.id, pred: makeDefaultPred() }); });
+    });
+  });
+
+  // Render all match cards immediately with default predictions
+  list.forEach(m => {
+    state.predictions[m.id] = makeDefaultPred();
+    const card = buildMatchCard(m);
     grid.insertAdjacentHTML('beforeend', card);
-  }
+  });
   grid.querySelectorAll('.match-card').forEach(c => c.addEventListener('click', () => openMatchModal(+c.dataset.matchId)));
   grid.querySelectorAll('.share-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); handleShare(btn); }));
-  // Animate bars
   setTimeout(() => {
-    grid.querySelectorAll('.prob-bar-fill').forEach(bar => {
-      bar.style.width = (bar.dataset.width || 0) + '%';
-    });
+    grid.querySelectorAll('.prob-bar-fill').forEach(bar => { bar.style.width = (bar.dataset.width || 0) + '%'; });
   }, 100);
-}
+
+  // Update cards as real predictions arrive — replace card HTML when prediction arrives
+  Promise.allSettled(predFutures).then(results => {
+    results.forEach(r => {
+      if (r.status !== 'fulfilled') return;
+      const { id, pred } = r.value;
+      state.predictions[id] = pred;
+      const card = grid.querySelector(`[data-match-id="${id}"]`);
+      if (!card) return;
+      const newCardHtml = buildMatchCard(list.find(m => m.id === id));
+      const tmp = document.createElement('div');
+      tmp.innerHTML = newCardHtml;
+      const newCard = tmp.firstElementChild;
+      if (newCard) {
+        newCard.querySelectorAll('.share-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); handleShare(btn); }));
+        newCard.querySelectorAll('.prob-bar-fill').forEach(bar => { bar.style.width = (bar.dataset.width || 0) + '%'; });
+        newCard.addEventListener('click', () => openMatchModal(+newCard.dataset.matchId));
+        grid.replaceChild(newCard, card);
+      }
+    });
+  });
 
 async function buildMatchCard(match) {
   const pred = state.predictions[match.id] || makeDefaultPred();
