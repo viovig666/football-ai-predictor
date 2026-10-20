@@ -484,12 +484,28 @@ async function renderAllMatches() {
   const e = document.getElementById('emptyState');
   if (e) e.style.display = 'none';
 
-  const cards = await Promise.allSettled(list.map(m => buildMatchCard(m)));
+  // Prefetch ALL predictions in parallel with per-match timeout
+  const predResults = await Promise.allSettled(
+    list.map(m =>
+      new Promise(resolve => {
+        const tid = setTimeout(() => resolve(makeDefaultPred()), 3000);
+        fetchPrediction(m.id)
+          .then(pred => { clearTimeout(tid); resolve(pred); })
+          .catch(() => { clearTimeout(tid); resolve(makeDefaultPred()); });
+      })
+    )
+  );
+  // Store predictions in state
+  list.forEach((m, i) => { state.predictions[m.id] = predResults[i].status === 'fulfilled' ? predResults[i].value : makeDefaultPred(); });
+
+  // Build and render cards immediately as predictions are ready
   grid.innerHTML = '';
-  cards.forEach(r => { if (r.status === 'fulfilled') grid.insertAdjacentHTML('beforeend', r.value); });
+  for (let i = 0; i < list.length; i++) {
+    const card = await buildMatchCard(list[i]);
+    grid.insertAdjacentHTML('beforeend', card);
+  }
   grid.querySelectorAll('.match-card').forEach(c => c.addEventListener('click', () => openMatchModal(+c.dataset.matchId)));
   grid.querySelectorAll('.share-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); handleShare(btn); }));
-
   // Animate bars
   setTimeout(() => {
     grid.querySelectorAll('.prob-bar-fill').forEach(bar => {
@@ -499,11 +515,7 @@ async function renderAllMatches() {
 }
 
 async function buildMatchCard(match) {
-  let pred = state.predictions[match.id];
-  if (!pred) {
-    try { pred = await fetchPrediction(match.id); state.predictions[match.id] = pred; }
-    catch { pred = makeDefaultPred(); }
-  }
+  const pred = state.predictions[match.id] || makeDefaultPred();
 
   const status = match.status || 'upcoming';
   const isLive = status === 'live';
