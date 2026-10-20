@@ -82,15 +82,13 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-primary
 .match-card.updated { animation: flashUpdate 0.8s ease-out; }
 .match-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(59,130,246,0.35); background: var(--bg-card-hover); }
 
-/* Card Top Bar: League | Time | Weather */
+/* Card Top Bar: League | Time */
 .card-topbar { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: rgba(0,0,0,0.25); border-bottom: 1px solid var(--border-color); font-size: 11px; }
 .league-info { display: flex; align-items: center; gap: 5px; color: var(--text-secondary); font-weight: 600; }
 .league-badge { font-size: 12px; }
 .match-meta { display: flex; align-items: center; gap: 8px; }
 .countdown { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); font-weight: 500; }
-.weather-chip { display: flex; align-items: center; gap: 3px; color: var(--text-secondary); font-size: 11px; font-weight: 500; }
-.weather-chip .weather-icon { font-size: 12px; }
-.weather-chip .temp { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
+
 
 /* Status / Time */
 .match-status { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
@@ -234,13 +232,7 @@ body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-primary
 .htft-card .htft-label { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
 .htft-card .htft-pct { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; color: var(--accent-purple); }
 
-/* Weather card */
-.weather-card { display: flex; align-items: center; gap: 16px; background: var(--bg-tertiary); border-radius: 10px; padding: 14px; }
-.weather-icon-lg { font-size: 36px; }
-.weather-info { display: flex; flex-direction: column; gap: 3px; }
-.weather-desc { font-size: 14px; font-weight: 700; color: var(--text-primary); }
-.weather-temp { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--accent-blue); }
-.weather-meta { font-size: 11px; color: var(--text-muted); margin-left: auto; text-align: right; }
+
 
 /* Odds comparison */
 .odds-comparison { display: flex; gap: 8px; }
@@ -548,12 +540,11 @@ async function buildMatchCard(match) {
     scoreHtml = `\x3cdiv class="score-display upcoming">VS</div>`;
   }
 
-  // League / time / weather header
+  // League / time header
   const leagueFlag = match.flag || '⚽';
   const leagueName = match.league || 'Unknown';
   const timeStr = match.time || '--:--';
-  const weatherIcon = match.weather_icon || '';
-  const temp = match.temperature ? match.temperature + '°' : '';
+
 
   // 1X2 probs
   const hp = Math.round((pred.home_prob||0.33)*100);
@@ -646,7 +637,7 @@ async function buildMatchCard(match) {
         \x3cspan>${leagueName}</span>
       </div>
       \x3cdiv class="match-meta">
-        ${weatherIcon ? `<span class="weather-chip"><span class="weather-icon">${weatherIcon}</span>${temp}</span>` : ''}
+
         ${countdownHtml}
         \x3cdiv class="match-status">
           \x3cdiv class="match-time ${timeClass}">${timeDisplay}</div>
@@ -748,11 +739,6 @@ async function openMatchModal(id) {
   const do_ = pred.draw_odds ? +pred.draw_odds.toFixed(2) : null;
   const ao = pred.away_odds ? +pred.away_odds.toFixed(2) : null;
   const hasOdds = ho && do_ && ao;
-
-  // Weather
-  const weatherIcon = match.weather_icon || '🌤️';
-  const weatherDesc = match.weather || 'Clear';
-  const temp = match.temperature ? match.temperature + '°C' : '';
 
   // Expected goals
   const xg = pred.expected_goals ? +pred.expected_goals.toFixed(2) : null;
