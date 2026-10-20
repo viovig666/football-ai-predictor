@@ -124,16 +124,24 @@ def api_predict(match_id):
     match_id is the LOCAL DB id, but we look it up directly from the API
     via the external_id mapping to avoid needing the DB at prediction time.
     """
-    # Step 1: Try to find match in local DB (most reliable path)
+    # Step 1: Try to find match by external_id first (stateless), then fall back to DB id
     conn = sqlite3.connect(app.config["DATABASE"])
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("SELECT * FROM matches WHERE id = ?", (match_id,))
+
+    # Look up by external_id (the ID the frontend actually knows)
+    cur.execute("SELECT * FROM matches WHERE external_id = ?", (str(match_id),))
     row = cur.fetchone()
+
+    # Fall back to local DB auto-increment id
+    if not row:
+        cur.execute("SELECT * FROM matches WHERE id = ?", (match_id,))
+        row = cur.fetchone()
+
     conn.close()
     match = dict(row) if row else None
 
-    # Step 2: If not in DB (wiped on deploy), fetch from API for today + tomorrow
+    # Step 2: If not in DB, fetch from API for today + tomorrow and insert
     if not match:
         import logging
         logging.warning(f"[api_predict] match_id={match_id} not in DB, attempting self-heal from API")
@@ -147,9 +155,10 @@ def api_predict(match_id):
                 m["date"] = target_date
                 db_id = insert_match(app.config["DATABASE"], m)
                 logging.warning(f"[api_predict] insert_match returned id={db_id} for {m.get('home_team')} vs {m.get('away_team')}")
-                if db_id == match_id:
+                # Match found by external_id
+                if str(m.get('external_id')) == str(match_id):
+                    m["id"] = db_id
                     match = m.copy()
-                    match["id"] = db_id
                     break
             if match:
                 break
