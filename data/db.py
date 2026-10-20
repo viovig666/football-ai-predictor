@@ -27,6 +27,12 @@ def init_db(db_path: str):
             country TEXT,
             league_id TEXT,
             status TEXT DEFAULT 'upcoming',
+            weather TEXT,
+            temperature REAL,
+            weather_icon TEXT,
+            home_odds REAL,
+            draw_odds REAL,
+            away_odds REAL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -44,6 +50,10 @@ def init_db(db_path: str):
             under_25_prob REAL,
             btts_yes_prob REAL,
             btts_no_prob REAL,
+            correct_score TEXT,
+            correct_score_prob REAL,
+            ht_ft TEXT,
+            ht_ft_prob REAL,
             model_version TEXT,
             model_type TEXT,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -133,8 +143,9 @@ def save_prediction(db_path: str, match_id: int, prediction: dict):
         INSERT INTO predictions (
             match_id, prediction, home_prob, draw_prob, away_prob,
             confidence, over_25_prob, under_25_prob, btts_yes_prob, btts_no_prob,
+            correct_score, correct_score_prob, ht_ft, ht_ft_prob,
             model_version, model_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         match_id,
         prediction["prediction"],
@@ -146,6 +157,10 @@ def save_prediction(db_path: str, match_id: int, prediction: dict):
         prediction.get("under_25_prob"),
         prediction.get("btts_yes_prob"),
         prediction.get("btts_no_prob"),
+        prediction.get("correct_score"),
+        prediction.get("correct_score_prob"),
+        prediction.get("ht_ft"),
+        prediction.get("ht_ft_prob"),
         prediction.get("model_version"),
         prediction.get("model_type"),
     ))
@@ -199,8 +214,10 @@ def insert_match(db_path: str, match_data: dict) -> int:
     cur.execute("""
         INSERT INTO matches (external_id, date, time, home_team, away_team,
                             home_team_id, away_team_id,
-                            home_score, away_score, league, country, league_id, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            home_score, away_score, league, country, league_id, status,
+                            weather, temperature, weather_icon,
+                            home_odds, draw_odds, away_odds)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         match_data.get("external_id"),
         match_data.get("date"),
@@ -215,6 +232,12 @@ def insert_match(db_path: str, match_data: dict) -> int:
         match_data.get("country"),
         match_data.get("league_id"),
         match_data.get("status", "upcoming"),
+        match_data.get("weather"),
+        match_data.get("temperature"),
+        match_data.get("weather_icon"),
+        match_data.get("home_odds"),
+        match_data.get("draw_odds"),
+        match_data.get("away_odds"),
     ))
     match_id = cur.lastrowid
     conn.commit()
