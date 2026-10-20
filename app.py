@@ -291,29 +291,33 @@ def api_leagues():
 @app.route("/api/accuracy")
 def api_accuracy():
     """Return platform prediction accuracy stats."""
-    conn = sqlite3.connect(app.config["DATABASE"])
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
-    cur.execute("""
-        SELECT
-            COUNT(*) as total,
-            SUM(CASE WHEN actual_outcome = predicted_outcome THEN 1 ELSE 0 END) as correct
-        FROM results r
-        JOIN predictions p ON p.match_id = r.match_id
-    """)
-    row = cur.fetchone()
-    conn.close()
+    try:
+        conn = sqlite3.connect(app.config["DATABASE"])
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN actual_outcome = predicted_outcome THEN 1 ELSE 0 END) as correct
+            FROM results r
+            JOIN predictions p ON p.match_id = r.match_id
+        """)
+        row = cur.fetchone()
+        conn.close()
 
-    if row and row["total"] > 0:
-        accuracy = round(row["correct"] / row["total"] * 100, 1)
-    else:
-        accuracy = None
+        if row and row["total"] > 0:
+            accuracy = round(row["correct"] / row["total"] * 100, 1)
+        else:
+            accuracy = None
 
-    return jsonify({
-        "total_predictions": row["total"] if row else 0,
-        "correct_predictions": row["correct"] if row else 0,
-        "accuracy_percent": accuracy
-    })
+        return jsonify({
+            "total_predictions": row["total"] if row else 0,
+            "correct_predictions": row["correct"] if row else 0,
+            "accuracy_percent": accuracy
+        })
+    except Exception as e:
+        logging.warning(f"[api_accuracy] error: {e}")
+        return jsonify({"total_predictions": 0, "correct_predictions": 0, "accuracy_percent": None})
 
 
 @app.route("/api/feedback", methods=["POST"])
