@@ -1,0 +1,25 @@
+# render.yaml — FootPredict AI on Render
+# Place in: /home/viovig/cd/football-ai-predictor/render.yaml
+#
+# Deploy: render deploy (after `npm install -g render-cli`)
+# Or:    Import this file in Render Dashboard → "New +" → "Import from render.yaml"
+#
+# Docs:  https://render.com/docs/yaml
+
+services:
+  - type: web
+    name: football-ai-predictor
+    region: frankfurt
+    repo: https://github.com/viovig666/football-ai-predictor
+    branch: master
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:8080 --timeout 300 --workers 2 app:app
+    healthCheckPath: /
+    envVars:
+      - key: FOOTBALL_DATA_API_KEY
+        sync: false   # Set actual value in Render dashboard — never commit keys
+      - key: API_FOOTBALL_KEY
+        sync: false
+      - key: RAILWAY_ENVIRONMENT
+        value: production
