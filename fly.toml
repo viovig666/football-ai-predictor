@@ -1,33 +1,34 @@
-# fly.toml — FootPredict AI on Fly.io
-# Uses Nixpacks (no Docker needed — Fly.io builds in the cloud)
+# fly.toml app configuration file generated for football-ai-predictor on 2026-10-20T19:14:59Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "football-ai-predictor"
+app = 'football-ai-predictor'
+primary_region = 'cdg'
 
 [build]
-  builder = "nixpacks"
-  nixpacks_ver = "latest"
+  builder = 'nixpacks'
 
 [deploy]
   release_command = "echo 'Models will train on first boot'"
-  restart_limit = 10
+
+[env]
+  PORT = '8080'
+
+[[mounts]]
+  source = 'footpredict_data'
+  destination = '/app/data'
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = true
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
+  processes = ['app']
 
 [[vm]]
-  memory = "512mb"
-  cpu_kind = "shared"
+  memory = '512mb'
+  cpu_kind = 'shared'
   cpus = 1
-
-# SQLite data persistence
-[[mounts]]
-  source = "footpredict_data"
-  destination = "/app/data"
-
-[env]
-  PORT = "8080"
+  memory_mb = 512
