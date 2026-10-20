@@ -36,6 +36,25 @@ CORS(app)
 app.config["DATABASE"] = config.DATABASE_PATH
 
 predictor = FootballPredictor()
+# Warm model cache at startup so first prediction request is fast
+import threading
+def _warm_models():
+    predictor._ensure_models()
+    # Also run a fake prediction to fully initialize all model internals
+    try:
+        predictor.predict({
+            'home_form': 0.5, 'away_form': 0.5,
+            'home_goals_scored_avg': 1.0, 'home_goals_conceded_avg': 1.0,
+            'away_goals_scored_avg': 1.0, 'away_goals_conceded_avg': 1.0,
+            'h2h_home_wins': 1, 'h2h_draws': 1, 'h2h_away_wins': 1,
+            'home_league_pos': 1, 'away_league_pos': 1,
+            'home_odds': 2.0, 'draw_odds': 3.2, 'away_odds': 3.5,
+        })
+        print("[startup] Model cache warmed")
+    except Exception as e:
+        print(f"[startup] Model warmup error: {e}")
+
+threading.Thread(target=_warm_models, daemon=True).start()
 api_football = APIFootball()
 
 
