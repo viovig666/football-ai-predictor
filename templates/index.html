@@ -529,7 +529,7 @@ async function renderAllMatches() {
   });
 }
 
-async function buildMatchCard(match) {
+function buildMatchCard(match) {
   const pred = state.predictions[match.id] || makeDefaultPred();
 
   const status = match.status || 'upcoming';
