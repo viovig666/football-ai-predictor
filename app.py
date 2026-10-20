@@ -216,7 +216,26 @@ def api_predict(match_id):
     # Step 5: Generate prediction and cache it
     prediction = predictor.predict(match)
 
-    # Step 6: Calculate indicative odds from model probabilities (no vig)
+    # Step 6: Extract scalar top-predictions from dict-structured outputs
+    cs_dict = prediction.get("correct_score_probs", {})
+    if cs_dict:
+        top_score = max(cs_dict, key=cs_dict.get)
+        prediction["correct_score"] = top_score
+        prediction["correct_score_prob"] = cs_dict[top_score]
+    else:
+        prediction["correct_score"] = "1-1"
+        prediction["correct_score_prob"] = 0.0
+
+    htft_dict = prediction.get("ht_ft_probs", {})
+    if htft_dict:
+        top_htft = max(htft_dict, key=htft_dict.get)
+        prediction["ht_ft"] = top_htft
+        prediction["ht_ft_prob"] = htft_dict[top_htft]
+    else:
+        prediction["ht_ft"] = "HH"
+        prediction["ht_ft_prob"] = 0.0
+
+    # Step 7: Calculate indicative odds from model probabilities (no vig)
     home_p = prediction.get("home_prob", 0.40)
     draw_p = prediction.get("draw_prob", 0.28)
     away_p = prediction.get("away_prob", 0.32)
@@ -229,8 +248,8 @@ def api_predict(match_id):
 
     try:
         save_prediction(app.config["DATABASE"], match_id, prediction)
-    except Exception:
-        pass  # DB may be full/empty — continue without cache
+    except Exception as ex:
+        print(f"[api_predict] save_prediction failed: {ex}")  # DB may be full/empty — continue without cache
 
     return jsonify({"prediction": prediction})
 

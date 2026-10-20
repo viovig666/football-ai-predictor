@@ -7,760 +7,276 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-/* ─── CSS Variables ──────────────────────────────────────────────────── */
 :root {
-    --bg-primary: #0f1419;
-    --bg-secondary: #1a2332;
-    --bg-tertiary: #243044;
-    --bg-card: #1e2a3a;
+    --bg-primary: #0a0e17;
+    --bg-secondary: #111827;
+    --bg-tertiary: #1e293b;
+    --bg-card: #141d2b;
+    --bg-card-hover: #1a2436;
     --accent-green: #00d084;
-    --accent-red: #ff4757;
-    --accent-yellow: #ffc107;
+    --accent-red: #ef4444;
+    --accent-yellow: #f59e0b;
     --accent-blue: #3b82f6;
-    --accent-purple: #a855f7;
-    --text-primary: #ffffff;
-    --text-secondary: #8899a6;
-    --text-muted: #5c6f82;
-    --border-color: #2f3f54;
-    --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-    --radius: 12px;
+    --accent-purple: #8b5cf6;
+    --accent-gold: #fbbf24;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #475569;
+    --border-color: #1e293b;
+    --shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+    --radius: 14px;
     --radius-sm: 8px;
+    --card-gradient: linear-gradient(135deg, #141d2b 0%, #1a2436 100%);
 }
-
-/* ─── Reset & Base ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.5; min-height: 100vh; }
 
-body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    line-height: 1.5;
-    min-height: 100vh;
-}
-
-/* ─── Header ────────────────────────────────────────────────────────── */
-.header {
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
-.header-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 24px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    gap: 32px;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    flex-shrink: 0;
-}
-
-.logo-icon { font-size: 24px; }
-
-.logo-text {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--text-primary);
-    letter-spacing: -0.5px;
-}
-
-.logo-ai {
-    background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-left: 2px;
-}
-
-.nav-tabs {
-    display: flex;
-    gap: 4px;
-    background: var(--bg-tertiary);
-    padding: 4px;
-    border-radius: var(--radius);
-}
-
-.tab-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    padding: 8px 20px;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-}
-
+/* ─── Header ─── */
+.header { background: rgba(17,24,39,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; }
+.header-inner { max-width: 1400px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 24px; }
+.logo { display: flex; align-items: center; gap: 8px; text-decoration: none; flex-shrink: 0; }
+.logo-icon { font-size: 26px; }
+.logo-text { font-size: 20px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; }
+.logo-ai { background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.nav-tabs { display: flex; gap: 3px; background: var(--bg-tertiary); padding: 3px; border-radius: 10px; }
+.tab-btn { background: transparent; border: none; color: var(--text-secondary); padding: 7px 18px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
 .tab-btn:hover { color: var(--text-primary); }
-
-.tab-btn.active {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
-
-.header-right {
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-.search-box input {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 8px 16px;
-    border-radius: var(--radius);
-    font-size: 14px;
-    width: 220px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.2s;
-}
-
+.tab-btn.active { background: var(--bg-secondary); color: var(--text-primary); box-shadow: 0 1px 6px rgba(0,0,0,0.4); }
+.live-indicator { display: inline-flex; align-items: center; gap: 5px; color: var(--accent-red); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.live-dot { width: 6px; height: 6px; background: var(--accent-red); border-radius: 50%; animation: livePulse 1.2s infinite; }
+@keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.search-box input { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 7px 14px; border-radius: 8px; font-size: 13px; width: 200px; font-family: inherit; outline: none; transition: border-color 0.2s; }
 .search-box input:focus { border-color: var(--accent-blue); }
 .search-box input::placeholder { color: var(--text-muted); }
+.accuracy-badge { background: linear-gradient(135deg, rgba(0,208,132,0.12), rgba(59,130,246,0.12)); border: 1px solid rgba(0,208,132,0.25); border-radius: 8px; padding: 5px 12px; display: flex; flex-direction: column; align-items: center; cursor: help; }
+.acc-label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+.acc-value { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: var(--accent-green); }
 
-.accuracy-badge {
-    background: linear-gradient(135deg, rgba(0,208,132,0.15), rgba(59,130,246,0.15));
-    border: 1px solid rgba(0,208,132,0.3);
-    border-radius: var(--radius);
-    padding: 6px 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: help;
-}
-
-.acc-label {
-    font-size: 10px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 600;
-}
-
-.acc-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--accent-green);
-}
-
-/* ─── Filter Bar ───────────────────────────────────────────────────── */
-.filter-bar {
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-}
-
-.filter-bar-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 12px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.quick-filters {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.qf-btn {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    color: var(--text-secondary);
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: inherit;
-}
-
+/* ─── Filter Bar ─── */
+.filter-bar { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); }
+.filter-bar-inner { max-width: 1400px; margin: 0 auto; padding: 10px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.quick-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.qf-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
 .qf-btn:hover { border-color: var(--accent-blue); color: var(--text-primary); }
+.qf-btn.active { background: rgba(59,130,246,0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
+.qf-btn.high-conf.active { background: rgba(251,191,36,0.15); border-color: var(--accent-gold); color: var(--accent-gold); }
+.league-filter select { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 5px 10px; border-radius: 6px; font-size: 12px; font-family: inherit; outline: none; cursor: pointer; }
 
-.qf-btn.active {
-    background: rgba(59, 130, 246, 0.15);
-    border-color: var(--accent-blue);
-    color: var(--accent-blue);
-}
+/* ─── Main ─── */
+.main { max-width: 1400px; margin: 0 auto; padding: 20px 24px; }
 
-.league-filter select {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 6px 12px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    cursor: pointer;
-}
+/* ─── Stats Banner ─── */
+.stats-banner { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat-item { background: var(--card-gradient); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 14px 20px; display: flex; flex-direction: column; align-items: center; min-width: 130px; flex: 1; }
+.stat-value { font-family: 'JetBrains Mono', monospace; font-size: 26px; font-weight: 700; color: var(--accent-blue); }
+.stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
 
-/* ─── Main ─────────────────────────────────────────────────────────── */
-.main {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px;
-}
+/* ─── Match Grid ─── */
+.match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 14px; }
 
-/* ─── Stats Banner ─────────────────────────────────────────────────── */
-.stats-banner {
-    display: flex;
-    gap: 24px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-}
+/* ─── Match Card ─── */
+.match-card { background: var(--card-gradient); border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; animation: fadeIn 0.3s ease-out; position: relative; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes flashUpdate { 0%{box-shadow:0 0 0 0 rgba(0,208,132,0)} 30%{box-shadow:0 0 0 5px rgba(0,208,132,0.5)} 100%{box-shadow:0 0 0 0 rgba(0,208,132,0)} }
+.match-card.updated { animation: flashUpdate 0.8s ease-out; }
+.match-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: rgba(59,130,246,0.35); background: var(--bg-card-hover); }
 
-.stat-item {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    padding: 16px 24px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 140px;
-    flex: 1;
-}
+/* Card Top Bar: League | Time | Weather */
+.card-topbar { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: rgba(0,0,0,0.25); border-bottom: 1px solid var(--border-color); font-size: 11px; }
+.league-info { display: flex; align-items: center; gap: 5px; color: var(--text-secondary); font-weight: 600; }
+.league-badge { font-size: 12px; }
+.match-meta { display: flex; align-items: center; gap: 8px; }
+.countdown { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); font-weight: 500; }
+.weather-chip { display: flex; align-items: center; gap: 3px; color: var(--text-secondary); font-size: 11px; font-weight: 500; }
+.weather-chip .weather-icon { font-size: 12px; }
+.weather-chip .temp { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); }
 
-.stat-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--accent-blue);
-}
-
-.stat-label {
-    font-size: 12px;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 4px;
-}
-
-/* ─── Match Grid ───────────────────────────────────────────────────── */
-.match-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 16px;
-}
-
-/* ─── Match Card ───────────────────────────────────────────────────── */
-.match-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-    animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes flashUpdate {
-    0%   { box-shadow: 0 0 0 0 rgba(0, 208, 132, 0); }
-    30%  { box-shadow: 0 0 0 4px rgba(0, 208, 132, 0.5); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 208, 132, 0); }
-}
-
-.match-card.updated {
-    animation: flashUpdate 0.8s ease-out;
-}
-
-.match-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
-    border-color: rgba(59, 130, 246, 0.4);
-}
-
-/* Card Header: League + Time */
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 14px;
-    background: rgba(0,0,0,0.2);
-    border-bottom: 1px solid var(--border-color);
-    font-size: 12px;
-}
-
-.league-info {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--text-secondary);
-    font-weight: 600;
-}
-
-.league-flag { font-size: 14px; }
-
-.match-time {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-.match-time.live {
-    color: var(--accent-red);
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.match-time.finished { color: var(--text-muted); }
+/* Status / Time */
+.match-status { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.match-time { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.match-time.live { color: var(--accent-red); }
+.match-time.finished { color: var(--text-muted); font-size: 11px; font-weight: 600; }
+.match-time.upcoming { color: var(--text-secondary); font-size: 12px; }
 
 /* Teams Row */
-.teams-row {
-    display: flex;
-    align-items: center;
-    padding: 14px;
-    gap: 8px;
-}
+.teams-row { display: flex; align-items: center; padding: 12px 14px; gap: 8px; }
+.team { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.team-logo { width: 42px; height: 42px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; border: 1px solid var(--border-color); color: var(--text-primary); }
+.team-name { font-size: 11px; font-weight: 700; color: var(--text-primary); text-align: center; line-height: 1.2; max-width: 95px; }
+.score-display { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 800; color: var(--text-primary); min-width: 55px; text-align: center; flex-shrink: 0; padding: 0 4px; }
+.score-display.upcoming { color: var(--text-muted); font-size: 16px; font-weight: 600; }
+.live-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: var(--accent-red); padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
 
-.team {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
+/* Prediction Section */
+.prediction-section { padding: 10px 14px; background: rgba(0,0,0,0.15); border-top: 1px solid var(--border-color); }
 
-.team-logo {
-    width: 40px;
-    height: 40px;
-    background: var(--bg-tertiary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    border: 1px solid var(--border-color);
-}
+/* Main prediction row */
+.pred-main-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.pred-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 16px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; }
+.pred-badge.home { background: rgba(0,208,132,0.15); color: var(--accent-green); border: 1px solid rgba(0,208,132,0.3); }
+.pred-badge.draw { background: rgba(245,158,11,0.15); color: var(--accent-yellow); border: 1px solid rgba(245,158,11,0.3); }
+.pred-badge.away { background: rgba(239,68,68,0.15); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.3); }
+.odds-row { display: flex; gap: 5px; }
+.odds-chip { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 6px; padding: 2px 7px; font-size: 10px; font-weight: 600; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.odds-chip .odds-label { font-size: 9px; color: var(--text-muted); font-weight: 500; }
+.odds-chip .odds-value { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--text-primary); }
+.odds-chip.home .odds-value { color: var(--accent-green); }
+.odds-chip.draw .odds-value { color: var(--accent-yellow); }
+.odds-chip.away .odds-value { color: var(--accent-red); }
 
-.team-name {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-primary);
-    text-align: center;
-    line-height: 1.2;
-    max-width: 90px;
-}
+/* 1X2 probability bars */
+.prob-bars { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.prob-row { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 700; }
+.prob-label { width: 22px; color: var(--text-secondary); font-weight: 600; }
+.prob-bar-track { flex: 1; height: 5px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
+.prob-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease-out; width: 0; }
+.prob-bar-fill.home { background: linear-gradient(90deg, var(--accent-green), #00a060); }
+.prob-bar-fill.draw { background: linear-gradient(90deg, var(--accent-yellow), #d97706); }
+.prob-bar-fill.away { background: linear-gradient(90deg, var(--accent-red), #b91c1c); }
+.prob-pct { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: var(--text-primary); width: 32px; text-align: right; }
 
-.score-display {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text-primary);
-    min-width: 50px;
-    text-align: center;
-    flex-shrink: 0;
-}
+/* Correct Score row */
+.cs-row { display: flex; align-items: center; gap: 6px; margin-bottom: 7px; padding: 5px 8px; background: rgba(0,0,0,0.2); border-radius: 6px; }
+.cs-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; width: 36px; flex-shrink: 0; }
+.cs-items { display: flex; gap: 5px; flex-wrap: wrap; }
+.cs-chip { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace; color: var(--text-primary); display: flex; align-items: center; gap: 4px; }
+.cs-chip .cs-pct { font-size: 9px; color: var(--accent-blue); font-family: 'JetBrains Mono', monospace; }
 
-.score-display.upcoming { color: var(--text-muted); font-size: 16px; }
+/* HT/FT row */
+.htft-row { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+.htft-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; width: 36px; flex-shrink: 0; }
+.htft-items { display: flex; gap: 4px; flex-wrap: wrap; }
+.htft-chip { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 5px; padding: 2px 7px; font-size: 10px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 4px; cursor: default; }
+.htft-chip .htft-pct { font-size: 9px; color: var(--accent-purple); font-family: 'JetBrains Mono', monospace; }
+.htft-chip.top { border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.1); }
 
-/* Prediction Box */
-.prediction-box {
-    padding: 12px 14px;
-    background: rgba(0,0,0,0.15);
-    border-top: 1px solid var(--border-color);
-}
+/* Tips chips */
+.tips-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.tip-chip { background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: 5px; padding: 3px 8px; font-size: 10px; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; gap: 3px; }
+.tip-chip .tip-val { font-family: 'JetBrains Mono', monospace; color: var(--accent-blue); font-size: 10px; font-weight: 700; }
+.tip-chip.high-conf { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); }
 
-.pred-main {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
+/* Conf bar */
+.conf-bar { display: flex; align-items: center; gap: 6px; margin-top: 7px; }
+.conf-bar-track { flex: 1; height: 4px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden; }
+.conf-bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent-green), var(--accent-blue)); transition: width 0.6s ease-out; }
+.conf-label { font-size: 10px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
+.conf-value { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent-green); }
 
-.prediction-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
+/* Share button */
+.share-btn { background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 3px 9px; border-radius: 5px; font-size: 10px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; display: flex; align-items: center; gap: 3px; }
+.share-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.share-btn.copied { border-color: var(--accent-green); color: var(--accent-green); }
 
-.prediction-badge.home { background: rgba(0,208,132,0.15); color: var(--accent-green); }
-.prediction-badge.draw { background: rgba(255,193,7,0.15); color: var(--accent-yellow); }
-.prediction-badge.away { background: rgba(255,71,87,0.15); color: var(--accent-red); }
-
-.confidence-val {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-secondary);
-}
-
-.confidence-val span {
-    color: var(--accent-green);
-    font-size: 16px;
-}
-
-/* Probability Bars */
-.prob-bars {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.prob-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 11px;
-    font-weight: 600;
-}
-
-.prob-label {
-    width: 28px;
-    color: var(--text-secondary);
-}
-
-.prob-bar-track {
-    flex: 1;
-    height: 6px;
-    background: var(--bg-tertiary);
-    border-radius: 3px;
-    overflow: hidden;
-}
-
-.prob-bar-fill {
-    height: 100%;
-    border-radius: 3px;
-    transition: width 0.6s ease-out;
-    width: 0;
-}
-
-.prob-bar-fill.home { background: var(--accent-green); }
-.prob-bar-fill.draw { background: var(--accent-yellow); }
-.prob-bar-fill.away { background: var(--accent-red); }
-
-.prob-pct {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-primary);
-    width: 36px;
-    text-align: right;
-}
-
-/* Secondary Tips */
-.tips-row {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-}
-
-.tip-chip {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.tip-chip .tip-val {
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--accent-blue);
-}
-
-/* ─── Loading / Empty States ──────────────────────────────────────── */
-.loading-state {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px;
-    color: var(--text-secondary);
-    gap: 16px;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid var(--border-color);
-    border-top-color: var(--accent-blue);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.empty-state {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 80px;
-    color: var(--text-secondary);
-}
-
+/* ─── Loading / Empty ─── */
+.loading-state { grid-column: 1/-1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px; color: var(--text-secondary); gap: 16px; }
+.spinner { width: 38px; height: 38px; border: 3px solid var(--border-color); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.empty-state { grid-column: 1/-1; text-align: center; padding: 80px; color: var(--text-secondary); }
 .empty-icon { font-size: 48px; display: block; margin-bottom: 16px; }
 .empty-state h3 { color: var(--text-primary); margin-bottom: 8px; }
 
-/* ─── Modal ───────────────────────────────────────────────────────── */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 200;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    backdrop-filter: blur(4px);
-}
-
+/* ─── Modal ─── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px; backdrop-filter: blur(6px); }
 .modal-overlay.open { display: flex; }
-
-.modal {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    max-width: 680px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    box-shadow: var(--shadow);
-}
-
-.modal-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--bg-tertiary);
-    border: none;
-    color: var(--text-secondary);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-    z-index: 1;
-}
-
-.modal-close:hover { background: var(--accent-red); color: white; }
-
+.modal { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 16px; max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
+.modal-close { position: absolute; top: 14px; right: 14px; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-secondary); width: 32px; height: 32px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 1; }
+.modal-close:hover { background: var(--accent-red); color: white; border-color: var(--accent-red); }
 .modal-content { padding: 24px; }
 
-/* Modal Header */
-.modal-match-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-}
+/* Modal header */
+.modal-match-header { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); position: relative; }
+.modal-team { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.modal-team-logo { width: 58px; height: 58px; background: var(--bg-tertiary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; border: 1px solid var(--border-color); }
+.modal-team-name { font-size: 14px; font-weight: 700; text-align: center; max-width: 100px; }
+.modal-score { font-family: 'JetBrains Mono', monospace; font-size: 34px; font-weight: 800; text-align: center; }
+.modal-score-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; text-align: center; margin-top: 4px; }
+.modal-actions { position: absolute; top: 0; right: 0; display: flex; gap: 6px; }
 
-.modal-team {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
+/* Modal sections */
+.modal-section { margin-bottom: 22px; }
+.modal-section-title { font-size: 12px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 6px; }
+.modal-section-title .icon { font-size: 14px; }
 
-.modal-team-logo {
-    width: 56px;
-    height: 56px;
-    background: var(--bg-tertiary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    border: 1px solid var(--border-color);
-}
+/* 1X2 in modal */
+.modal-1x2 { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 14px; }
+.modal-1x2-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.modal-1x2-outcome { flex: 1; text-align: center; }
+.modal-1x2-label { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 4px; }
+.modal-1x2-bar { height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+.modal-1x2-fill { height: 100%; border-radius: 3px; }
+.modal-1x2-fill.home{background:var(--accent-green)} .modal-1x2-fill.draw{background:var(--accent-yellow)} .modal-1x2-fill.away{background:var(--accent-red)}
+.modal-1x2-pct { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; }
+.modal-1x2-odds { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
-.modal-team-name {
-    font-size: 15px;
-    font-weight: 700;
-    text-align: center;
-}
+/* Stats grid */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stats-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-card { background: var(--bg-tertiary); border-radius: 8px; padding: 10px; text-align: center; }
+.stat-card .label { font-size: 10px; color: var(--text-secondary); font-weight: 600; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+.stat-card .value { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 800; }
+.stat-card .value.home{color:var(--accent-green)} .stat-card .value.draw{color:var(--accent-yellow)} .stat-card .value.away{color:var(--accent-red)} .stat-card .value.blue{color:var(--accent-blue)}
 
-.modal-score {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 32px;
-    font-weight: 700;
-}
+/* CS table */
+.cs-table { width: 100%; border-collapse: collapse; }
+.cs-table th { font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
+.cs-table th:last-child { text-align: right; }
+.cs-table td { padding: 7px 10px; font-size: 13px; border-bottom: 1px solid rgba(30,41,59,0.5); }
+.cs-table td:last-child { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-blue); font-size: 12px; }
+.cs-table tr:nth-child(1) td { color: var(--accent-gold); font-weight: 700; }
+.cs-table tr:nth-child(1) td:last-child { color: var(--accent-gold); }
 
-/* Modal Sections */
-.modal-section {
-    margin-bottom: 24px;
-}
+/* HT/FT grid */
+.htft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.htft-card { background: var(--bg-tertiary); border-radius: 8px; padding: 10px; text-align: center; }
+.htft-card.top { border: 1px solid rgba(139,92,246,0.4); background: rgba(139,92,246,0.08); }
+.htft-card .htft-label { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+.htft-card .htft-pct { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 800; color: var(--accent-purple); }
 
-.modal-section-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border-color);
-}
+/* Weather card */
+.weather-card { display: flex; align-items: center; gap: 16px; background: var(--bg-tertiary); border-radius: 10px; padding: 14px; }
+.weather-icon-lg { font-size: 36px; }
+.weather-info { display: flex; flex-direction: column; gap: 3px; }
+.weather-desc { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.weather-temp { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 800; color: var(--accent-blue); }
+.weather-meta { font-size: 11px; color: var(--text-muted); margin-left: auto; text-align: right; }
 
-/* Modal Prediction Display */
-.modal-prediction {
-    background: rgba(0,0,0,0.2);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-}
+/* Odds comparison */
+.odds-comparison { display: flex; gap: 8px; }
+.odds-col { flex: 1; background: var(--bg-tertiary); border-radius: 8px; padding: 10px; text-align: center; }
+.odds-col .odds-outcome { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+.odds-col .odds-val { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 800; }
+.odds-col.home .odds-val{color:var(--accent-green)} .odds-col.draw .odds-val{color:var(--accent-yellow)} .odds-col.away .odds-val{color:var(--accent-red)}
 
-.modal-pred-result {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-}
+/* Footer */
+.footer { background: var(--bg-secondary); border-top: 1px solid var(--border-color); margin-top: 48px; }
+.footer-inner { max-width: 1400px; margin: 0 auto; padding: 24px; text-align: center; font-size: 13px; color: var(--text-secondary); }
+.disclaimer { margin-top: 4px; font-size: 12px; color: var(--text-muted); }
 
-.modal-pred-probs {
-    display: flex;
-    gap: 12px;
-}
-
-.modal-pred-prob {
-    flex: 1;
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-sm);
-    padding: 10px;
-    text-align: center;
-}
-
-.modal-pred-prob .label {
-    font-size: 11px;
-    color: var(--text-secondary);
-    font-weight: 600;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.modal-pred-prob .value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 18px;
-    font-weight: 700;
-}
-
-/* Stats Grid in Modal */
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-}
-
-.stat-card {
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-sm);
-    padding: 12px;
-    text-align: center;
-}
-
-.stat-card .label {
-    font-size: 11px;
-    color: var(--text-secondary);
-    font-weight: 600;
-    display: block;
-    margin-bottom: 4px;
-}
-
-.stat-card .value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.stat-card .value.home { color: var(--accent-green); }
-.stat-card .value.draw { color: var(--accent-yellow); }
-.stat-card .value.away { color: var(--accent-red); }
-
-/* ─── Footer ──────────────────────────────────────────────────────── */
-.footer {
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    margin-top: 48px;
-}
-
-.footer-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 24px;
-    text-align: center;
-    font-size: 13px;
-    color: var(--text-secondary);
-}
-
-.disclaimer {
-    margin-top: 4px;
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-/* ─── Responsive ──────────────────────────────────────────────────── */
+/* Responsive */
 @media (max-width: 768px) {
-    .header-inner { padding: 0 16px; gap: 12px; }
+    .header-inner { padding: 0 16px; gap: 10px; }
     .logo-text { font-size: 16px; }
     .nav-tabs { display: none; }
-    .search-box input { width: 150px; }
-    .stats-banner { gap: 12px; }
-    .stat-item { min-width: 100px; padding: 12px; }
-    .stat-value { font-size: 22px; }
-    .main { padding: 16px; }
+    .search-box input { width: 140px; }
+    .stats-banner { gap: 10px; }
+    .stat-item { min-width: 90px; padding: 10px; }
+    .stat-value { font-size: 20px; }
+    .main { padding: 14px 16px; }
     .match-grid { grid-template-columns: 1fr; }
+    .modal { margin: 10px; max-height: 85vh; }
+    .modal-content { padding: 16px; }
 }
-
 @media (max-width: 480px) {
-    .filter-bar-inner { padding: 10px 16px; }
-    .qf-btn { font-size: 12px; padding: 5px 12px; }
+    .filter-bar-inner { padding: 8px 16px; }
+    .qf-btn { font-size: 11px; padding: 4px 10px; }
 }
     </style>
 </head>
 <body>
 
-<!-- ─── Header ─────────────────────────────────────────────────────── -->
+<!-- Header -->
 <header class="header">
     <div class="header-inner">
         <div class="logo">
@@ -774,9 +290,9 @@ body {
         </nav>
         <div class="header-right">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Search teams or matches..." autocomplete="off">
+                <input type="text" id="searchInput" placeholder="Search teams..." autocomplete="off">
             </div>
-            <div class="accuracy-badge" id="accuracyBadge" title="Platform prediction accuracy">
+            <div class="accuracy-badge" id="accuracyBadge" title="Model accuracy (verified predictions)">
                 <span class="acc-label">Accuracy</span>
                 <span class="acc-value" id="accuracyValue">—</span>
             </div>
@@ -784,81 +300,63 @@ body {
     </div>
 </header>
 
-<!-- ─── Filter Bar ────────────────────────────────────────────────── -->
+<!-- Filter Bar -->
 <div class="filter-bar">
     <div class="filter-bar-inner">
         <div class="quick-filters">
-            <button class="qf-btn active" data-market="all">All Predictions</button>
+            <button class="qf-btn active" data-market="all">All</button>
             <button class="qf-btn" data-market="1x2">1X2</button>
             <button class="qf-btn" data-market="over25">Over 2.5</button>
             <button class="qf-btn" data-market="btts">BTTS</button>
-            <button class="qf-btn" data-market="high-conf">High Confidence</button>
+            <button class="qf-btn" data-market="htft">HT/FT</button>
+            <button class="qf-btn" data-market="cs">Correct Score</button>
+            <button class="qf-btn high-conf" data-market="high-conf">⭐ High Conf</button>
         </div>
         <div class="league-filter">
-            <select id="leagueSelect">
-                <option value="">All Leagues</option>
-            </select>
+            <select id="leagueSelect"><option value="">All Leagues</option></select>
         </div>
     </div>
 </div>
 
-<!-- ─── Main Content ──────────────────────────────────────────────── -->
+<!-- Main Content -->
 <main class="main">
-    <!-- Stats Banner -->
     <div class="stats-banner" id="statsBanner">
-        <div class="stat-item">
-            <span class="stat-value" id="totalMatches">—</span>
-            <span class="stat-label">Matches</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-value" id="avgConfidence">—</span>
-            <span class="stat-label">Avg Confidence</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-value" id="platformAccuracy">—</span>
-            <span class="stat-label">Platform Accuracy</span>
-        </div>
+        <div class="stat-item"><span class="stat-value" id="totalMatches">—</span><span class="stat-label">Matches</span></div>
+        <div class="stat-item"><span class="stat-value" id="avgConfidence">—</span><span class="stat-label">Avg Confidence</span></div>
+        <div class="stat-item"><span class="stat-value" id="platformAccuracy">—</span><span class="stat-label">Platform Accuracy</span></div>
+        <div class="stat-item"><span class="stat-value" id="totalPredictions">—</span><span class="stat-label">Predictions</span></div>
     </div>
-
-    <!-- Match Grid -->
     <div class="match-grid" id="matchGrid">
-        <div class="loading-state" id="loadingState">
-            <div class="spinner"></div>
-            <p>Loading matches...</p>
-        </div>
+        <div class="loading-state" id="loadingState"><div class="spinner"></div><p>Loading matches...</p></div>
     </div>
-
-    <!-- Empty State -->
     <div class="empty-state" id="emptyState" style="display:none;">
-        <span class="empty-icon">📅</span>
-        <h3>No matches found</h3>
-        <p>No matches scheduled for this date. Try another day.</p>
+        <span class="empty-icon">📅</span><h3>No matches found</h3><p>No matches for this date. Try another day.</p>
     </div>
 </main>
 
-<!-- ─── Match Detail Modal ───────────────────────────────────────── -->
+<!-- Match Modal -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="matchModal">
         <button class="modal-close" id="modalClose">×</button>
-        <div class="modal-content" id="modalContent">
-            <!-- Dynamically populated -->
-        </div>
+        <div class="modal-content" id="modalContent"></div>
     </div>
 </div>
 
-<!-- ─── Footer ────────────────────────────────────────────────────── -->
+<!-- Footer -->
 <footer class="footer">
     <div class="footer-inner">
         <p>© 2026 FootPredict AI — AI-Powered Football Intelligence</p>
-        <p class="disclaimer">
-            Predictions are for informational purposes only.
-            Gamble responsibly. 18+
-        </p>
+        <p class="disclaimer">Predictions are for informational purposes only. Gamble responsibly. 18+</p>
     </div>
 </footer>
 
 <script>
-// ─── Auto-refresh (live updates every 60s) ──────────────────────────
+const API_BASE = '';
+const state = {
+  currentDate: 'today', currentMarket: 'all', currentLeague: '',
+  searchQuery: '', matches: [], predictions: {}, platformAccuracy: null,
+};
+
 let refreshTimer = null;
 
 function startAutoRefresh() {
@@ -869,105 +367,44 @@ function startAutoRefresh() {
       const newMatches = data.matches || [];
       const changed = newMatches.some((nm, i) => {
         const om = state.matches[i];
-        if (!om) return true;
-        return om.home_score !== nm.home_score ||
-               om.away_score !== nm.away_score ||
-               om.status !== nm.status;
+        return om && (om.home_score !== nm.home_score || om.away_score !== nm.away_score || om.status !== nm.status);
       });
       if (changed) {
         state.matches = newMatches;
         await renderAllMatches();
-        document.querySelectorAll('.match-card').forEach(card => {
-          card.classList.add('updated');
-          setTimeout(() => card.classList.remove('updated'), 800);
-        });
+        document.querySelectorAll('.match-card').forEach(c => { c.classList.add('updated'); setTimeout(() => c.classList.remove('updated'), 800); });
       }
-    } catch (err) {
-      console.warn('Auto-refresh failed:', err.message);
-    }
-  }, 60000);
+    } catch (_) {}
+  }, 30000);
 }
-
-function stopAutoRefresh() {
-  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
-}
-
-// ─── State ────────────────────────────────────────────────────────────
-const state = {
-  currentDate: 'today',
-  currentMarket: 'all',
-  currentLeague: '',
-  searchQuery: '',
-  matches: [],
-  predictions: {},
-  platformAccuracy: null,
-};
-
-// ─── API Helpers ─────────────────────────────────────────────────────
-const API_BASE = '';
 
 async function fetchMatches(date) {
-  const params = new URLSearchParams({ date });
-  if (state.currentLeague) params.set('league_id', state.currentLeague);
-  const res = await fetch(`${API_BASE}/api/matches?${params}`);
-  return res.json();
+  const p = new URLSearchParams({ date });
+  if (state.currentLeague) p.set('league_id', state.currentLeague);
+  return fetch(`${API_BASE}/api/matches?${p}`).then(r => r.json());
 }
+async function fetchPrediction(id) { return fetch(`${API_BASE}/api/predict/${id}`).then(r => r.json()).then(d => d.prediction); }
+async function fetchAccuracy() { return fetch(`${API_BASE}/api/accuracy`).then(r => r.json()); }
+async function fetchLeagues() { return fetch(`${API_BASE}/api/leagues`).then(r => r.json()).then(d => d.leagues || []); }
 
-async function fetchPrediction(matchId) {
-  const res = await fetch(`${API_BASE}/api/predict/${matchId}`);
-  const data = await res.json();
-  return data.prediction;
-}
-
-async function fetchAccuracy() {
-  const res = await fetch(`${API_BASE}/api/accuracy`);
-  return res.json();
-}
-
-async function fetchLeagues() {
-  const res = await fetch(`${API_BASE}/api/leagues`);
-  const data = await res.json();
-  return data.leagues || [];
-}
-
-async function submitFeedback(matchId, homeScore, awayScore) {
-  await fetch(`${API_BASE}/api/feedback`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ match_id: matchId, home_score: homeScore, away_score: awayScore }),
-  });
-}
-
-// ─── Init ────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
   await loadInitialData();
+  startAutoRefresh();
 });
 
 async function loadInitialData() {
   showLoading(true);
   try {
-    const [matchesData, accuracyData, leaguesData] = await Promise.all([
-      fetchMatches('today'),
-      fetchAccuracy(),
-      fetchLeagues(),
-    ]);
-    state.matches = matchesData.matches || [];
-    state.platformAccuracy = accuracyData;
-    renderAccuracy(accuracyData);
-    renderLeagues(leaguesData);
-    renderStatsBanner();
+    const [md, ad, ld] = await Promise.all([fetchMatches('today'), fetchAccuracy(), fetchLeagues()]);
+    state.matches = md.matches || [];
+    state.platformAccuracy = ad;
+    renderAccuracy(ad); renderLeagues(ld); renderStatsBanner();
     await renderAllMatches();
-    startAutoRefresh();
-  } catch (err) {
-    console.error('Failed to load initial data:', err);
-    showError('Failed to load data. Please refresh.');
-  } finally {
-    showLoading(false);
-  }
+  } catch (e) { showError('Failed to load. Refresh to retry.'); }
+  finally { showLoading(false); }
 }
 
-// ─── Event Listeners ─────────────────────────────────────────────────
 function setupEventListeners() {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -976,13 +413,9 @@ function setupEventListeners() {
       state.currentDate = btn.dataset.filter;
       showLoading(true);
       try {
-        const data = await fetchMatches(state.currentDate === 'today' ? 'today' : state.currentDate);
-        state.matches = data.matches || [];
-        await renderAllMatches();
-        renderStatsBanner();
-      } finally {
-        showLoading(false);
-      }
+        state.matches = (await fetchMatches(state.currentDate === 'today' ? 'today' : state.currentDate)).matches || [];
+        await renderAllMatches(); renderStatsBanner();
+      } finally { showLoading(false); }
     });
   });
 
@@ -995,262 +428,410 @@ function setupEventListeners() {
     });
   });
 
-  document.getElementById('leagueSelect').addEventListener('change', async (e) => {
+  document.getElementById('leagueSelect').addEventListener('change', async e => {
     state.currentLeague = e.target.value;
     showLoading(true);
     try {
-      const dateStr = state.currentDate === 'today' ? 'today' : state.currentDate;
-      const data = await fetchMatches(dateStr);
-      state.matches = data.matches || [];
-      await renderAllMatches();
-      renderStatsBanner();
-    } finally {
-      showLoading(false);
-    }
+      state.matches = (await fetchMatches(state.currentDate === 'today' ? 'today' : state.currentDate)).matches || [];
+      await renderAllMatches(); renderStatsBanner();
+    } finally { showLoading(false); }
   });
 
-  let searchTimeout;
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      state.searchQuery = e.target.value.toLowerCase().trim();
-      renderAllMatches();
-    }, 300);
-  });
-
-  document.getElementById('modalOverlay').addEventListener('click', (e) => {
-    if (e.target === document.getElementById('modalOverlay')) closeModal();
-  });
+  let st; document.getElementById('searchInput').addEventListener('input', e => { clearTimeout(st); st = setTimeout(() => { state.searchQuery = e.target.value.toLowerCase().trim(); renderAllMatches(); }, 250); });
+  document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === document.getElementById('modalOverlay')) closeModal(); });
   document.getElementById('modalClose').addEventListener('click', closeModal);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 }
 
-// ─── Rendering ───────────────────────────────────────────────────────
 async function renderAllMatches() {
   const grid = document.getElementById('matchGrid');
-  let filtered = state.matches;
+  let list = [...state.matches];
 
   if (state.searchQuery) {
-    filtered = filtered.filter(m =>
-      (m.home_team || '').toLowerCase().includes(state.searchQuery) ||
-      (m.away_team || '').toLowerCase().includes(state.searchQuery) ||
-      (m.league || '').toLowerCase().includes(state.searchQuery)
+    list = list.filter(m =>
+      (m.home_team||'').toLowerCase().includes(state.searchQuery) ||
+      (m.away_team||'').toLowerCase().includes(state.searchQuery) ||
+      (m.league||'').toLowerCase().includes(state.searchQuery)
     );
   }
-
   if (state.currentMarket !== 'all') {
-    filtered = filtered.filter(m => {
-      const pred = state.predictions[m.id];
-      if (!pred) return true;
+    list = list.filter(m => {
+      const p = state.predictions[m.id];
+      if (!p) return state.currentMarket === 'high-conf';
       switch (state.currentMarket) {
-        case 'over25': return (pred.over_25_prob || 0) > 0.55;
-        case 'btts': return (pred.btts_yes_prob || 0) > 0.55;
-        case 'high-conf': return (pred.confidence || 0) >= 75;
+        case 'over25': return (p.over_25_prob||0) > 0.55;
+        case 'btts': return (p.btts_yes_prob||0) > 0.55;
+        case 'high-conf': return (p.confidence||0) >= 72;
+        case 'htft': return p.ht_ft_probs && Object.keys(p.ht_ft_probs).length > 0;
+        case 'cs': return p.correct_score_probs && Object.keys(p.correct_score_probs).length > 0;
         default: return true;
       }
     });
   }
+  if (state.currentLeague) list = list.filter(m => String(m.league_id) === String(state.currentLeague));
 
-  if (state.currentLeague) {
-    filtered = filtered.filter(m => String(m.league_id) === String(state.currentLeague));
-  }
-
-  if (filtered.length === 0) {
+  if (list.length === 0) {
     grid.innerHTML = '';
-    const emptyEl = document.getElementById('emptyState');
-    if (emptyEl) { emptyEl.style.display = 'grid'; emptyEl.style.gridColumn = '1 / -1'; }
+    const e = document.getElementById('emptyState');
+    if (e) { e.style.display = 'grid'; e.style.gridColumn = '1 / -1'; }
     return;
   }
+  const e = document.getElementById('emptyState');
+  if (e) e.style.display = 'none';
 
-  const emptyEl = document.getElementById('emptyState');
-  if (emptyEl) emptyEl.style.display = 'none';
-
-  const cards = await Promise.allSettled(filtered.map(m => buildMatchCard(m)));
+  const cards = await Promise.allSettled(list.map(m => buildMatchCard(m)));
   grid.innerHTML = '';
-  cards.forEach((result) => {
-    if (result.status === 'fulfilled') {
-      grid.insertAdjacentHTML('beforeend', result.value);
-    }
-  });
+  cards.forEach(r => { if (r.status === 'fulfilled') grid.insertAdjacentHTML('beforeend', r.value); });
+  grid.querySelectorAll('.match-card').forEach(c => c.addEventListener('click', () => openMatchModal(+c.dataset.matchId)));
+  grid.querySelectorAll('.share-btn').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); handleShare(btn); }));
 
-  grid.querySelectorAll('.match-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const matchId = parseInt(card.dataset.matchId);
-      openMatchModal(matchId);
+  // Animate bars
+  setTimeout(() => {
+    grid.querySelectorAll('.prob-bar-fill').forEach(bar => {
+      bar.style.width = (bar.dataset.width || 0) + '%';
     });
-  });
+  }, 100);
 }
 
 async function buildMatchCard(match) {
   let pred = state.predictions[match.id];
   if (!pred) {
-    try {
-      pred = await fetchPrediction(match.id);
-      state.predictions[match.id] = pred;
-    } catch {
-      pred = { prediction: 'home', home_prob: 0.45, draw_prob: 0.28, away_prob: 0.27, confidence: 45, over_25_prob: 0.52, under_25_prob: 0.48, btts_yes_prob: 0.50, btts_no_prob: 0.50 };
-    }
+    try { pred = await fetchPrediction(match.id); state.predictions[match.id] = pred; }
+    catch { pred = makeDefaultPred(); }
   }
 
-  const leagueFlag = match.flag || '⚽';
-  const time = match.time || '--:--';
   const status = match.status || 'upcoming';
+  const isLive = status === 'live';
+  const isFinished = status === 'finished';
 
+  // Score display
   let scoreHtml;
-  if (status === 'finished' || match.home_score !== null) {
+  if (isFinished || match.home_score !== null) {
     const hs = match.home_score ?? 0, as = match.away_score ?? 0;
-    scoreHtml = `<div class="score-display">${hs} - ${as}</div>`;
+    scoreHtml = `<div class="score-display">${hs} – ${as}</div>`;
   } else {
     scoreHtml = `<div class="score-display upcoming">VS</div>`;
   }
 
-  const timeClass = status === 'live' ? 'live' : status === 'finished' ? 'finished' : '';
-  const timeDisplay = status === 'live' ? '🔴 LIVE' : status === 'finished' ? 'FT' : time;
-  const predBadge = makePredBadge(pred.prediction, pred.confidence);
+  // League / time / weather header
+  const leagueFlag = match.flag || '⚽';
+  const leagueName = match.league || 'Unknown';
+  const timeStr = match.time || '--:--';
+  const weatherIcon = match.weather_icon || '';
+  const temp = match.temperature ? match.temperature + '°' : '';
 
-  const homePct = Math.round(pred.home_prob * 100);
-  const drawPct = Math.round(pred.draw_prob * 100);
-  const awayPct = Math.round(pred.away_prob * 100);
+  // 1X2 probs
+  const hp = Math.round((pred.home_prob||0.33)*100);
+  const dp = Math.round((pred.draw_prob||0.28)*100);
+  const ap = Math.round((pred.away_prob||0.32)*100);
 
-  const overTip = pred.over_25_prob > 0.55
-    ? `<div class="tip-chip">O2.5 <span class="tip-val">${Math.round(pred.over_25_prob * 100)}%</span></div>`
-    : `<div class="tip-chip">U2.5 <span class="tip-val">${Math.round(pred.under_25_prob * 100)}%</span></div>`;
-  const bttsTip = pred.btts_yes_prob > 0.55
-    ? `<div class="tip-chip">BTTS-Yes <span class="tip-val">${Math.round(pred.btts_yes_prob * 100)}%</span></div>`
-    : `<div class="tip-chip">BTTS-No <span class="tip-val">${Math.round(pred.btts_no_prob * 100)}%</span></div>`;
+  // Pred badge
+  const predVal = pred.prediction || 'home';
+  const conf = pred.confidence || 50;
+  const predLabel = {home:'HOME WIN',draw:'DRAW',away:'AWAY WIN'}[predVal] || 'N/A';
+  const predIcon = {home:'⚽',draw:'⚖️',away:'⚽'}[predVal] || '';
+  const badgeClass = predVal;
 
-  const homeInitial = (match.home_team || 'H')[0];
-  const awayInitial = (match.away_team || 'A')[0];
+  // Odds
+  const ho = pred.home_odds ? +pred.home_odds.toFixed(2) : null;
+  const do_ = pred.draw_odds ? +pred.draw_odds.toFixed(2) : null;
+  const ao = pred.away_odds ? +pred.away_odds.toFixed(2) : null;
+  const hasOdds = ho && do_ && ao;
+
+  // Correct score — top 3
+  const cs = pred.correct_score_probs || {};
+  const topCs = Object.entries(cs).sort((a,b) => b[1]-a[1]).slice(0,3);
+  const hasCs = topCs.length > 0;
+
+  // HT/FT — top 3
+  const htft = pred.ht_ft_probs || {};
+  const topHtft = Object.entries(htft).sort((a,b) => b[1]-a[1]).slice(0,3);
+  const hasHtft = topHtft.length > 0;
+
+  // Tips
+  const over25 = Math.round((pred.over_25_prob||0)*100);
+  const bttsYes = Math.round((pred.btts_yes_prob||0)*100);
+  const tips = [];
+  if (over25 > 55) tips.push({l:'O2.5',v:over25+'%'});
+  else tips.push({l:'U2.5',v:(100-over25)+'%'});
+  if (bttsYes > 55) tips.push({l:'BTTS-Yes',v:bttsYes+'%'});
+  else tips.push({l:'BTTS-No',v:(100-bttsYes)+'%'});
+  if (conf >= 72) tips.push({l:'⭐ High Conf',v:conf+'%',high:true});
+
+  // Live status
+  const liveHtml = isLive ? '<div class="live-badge"><span class="live-dot" style="width:6px;height:6px;background:var(--accent-red);border-radius:50%;display:inline-block;"></span> LIVE</div>' : '';
+  const timeClass = isLive ? 'live' : isFinished ? 'finished' : 'upcoming';
+  const timeDisplay = isLive ? '🔴 LIVE' : isFinished ? 'FT' : timeStr;
+  const countdownHtml = !isLive && !isFinished ? `<span class="countdown" id="cd-${match.id}"></span>` : '';
+
+  // Team initials
+  const homeInit = (match.home_team||'H')[0].toUpperCase();
+  const awayInit = (match.away_team||'A')[0].toUpperCase();
+
+  // Odds chips
+  const oddsHtml = hasOdds ? `
+  <div class="odds-row">
+    <div class="odds-chip home"><span class="odds-label">1</span><span class="odds-value">${ho}</span></div>
+    <div class="odds-chip draw"><span class="odds-label">X</span><span class="odds-value">${do_}</span></div>
+    <div class="odds-chip away"><span class="odds-label">2</span><span class="odds-value">${ao}</span></div>
+  </div>` : '';
+
+  // Correct score row
+  const csRowHtml = hasCs ? `
+  <div class="cs-row">
+    <span class="cs-label">CS</span>
+    <div class="cs-items">
+      ${topCs.map(([score,p]) => `<div class="cs-chip">${score}<span class="cs-pct">${Math.round(p*100)}%</span></div>`).join('')}
+    </div>
+  </div>` : '';
+
+  // HT/FT row
+  const htftRowHtml = hasHtft ? `
+  <div class="htft-row">
+    <span class="htft-label">HT/FT</span>
+    <div class="htft-items">
+      ${topHtft.map(([k,p]) => `<div class="htft-chip${k===topHtft[0][0]?' top':''}">${k}<span class="htft-pct">${Math.round(p*100)}%</span></div>`).join('')}
+    </div>
+  </div>` : '';
+
+  // Tips row
+  const tipsRowHtml = tips.length ? `
+  <div class="tips-row">
+    ${tips.map(t => `<div class="tip-chip${t.high?' high-conf':''}">${t.l} <span class="tip-val">${t.v}</span></div>`).join('')}
+  </div>` : '';
+
+  // Conf bar
+  const confPct = Math.min(conf, 100);
 
   return `
   <article class="match-card" data-match-id="${match.id}">
-    <div class="card-header">
+    <div class="card-topbar">
       <div class="league-info">
-        <span class="league-flag">${leagueFlag}</span>
-        <span>${match.league || 'Unknown League'}</span>
+        <span class="league-badge">${leagueFlag}</span>
+        <span>${leagueName}</span>
       </div>
-      <div class="match-time ${timeClass}">${timeDisplay}</div>
+      <div class="match-meta">
+        ${weatherIcon ? `<span class="weather-chip"><span class="weather-icon">${weatherIcon}</span>${temp}</span>` : ''}
+        ${countdownHtml}
+        <div class="match-status">
+          <div class="match-time ${timeClass}">${timeDisplay}</div>
+          ${liveHtml}
+        </div>
+      </div>
     </div>
+
     <div class="teams-row">
       <div class="team">
-        <div class="team-logo">${homeInitial}</div>
-        <div class="team-name">${match.home_team || 'Home Team'}</div>
+        <div class="team-logo">${homeInit}</div>
+        <div class="team-name">${match.home_team||'Home'}</div>
       </div>
       ${scoreHtml}
       <div class="team">
-        <div class="team-logo">${awayInitial}</div>
-        <div class="team-name">${match.away_team || 'Away Team'}</div>
+        <div class="team-logo">${awayInit}</div>
+        <div class="team-name">${match.away_team||'Away'}</div>
       </div>
     </div>
-    <div class="prediction-box">
-      <div class="pred-main">
-        ${predBadge}
-        <div class="confidence-val">AI Conf: <span>${pred.confidence}%</span></div>
+
+    <div class="prediction-section">
+      <div class="pred-main-row">
+        <span class="pred-badge ${badgeClass}">${predIcon} ${predLabel} ${conf}%</span>
+        <button class="share-btn" data-id="${match.id}">🔗 Share</button>
       </div>
+
+      ${oddsHtml}
+
       <div class="prob-bars">
         <div class="prob-row">
           <span class="prob-label">1</span>
-          <div class="prob-bar-track"><div class="prob-bar-fill home" data-width="${homePct}"></div></div>
-          <span class="prob-pct">${homePct}%</span>
+          <div class="prob-bar-track"><div class="prob-bar-fill home" data-width="${hp}"></div></div>
+          <span class="prob-pct">${hp}%</span>
         </div>
         <div class="prob-row">
           <span class="prob-label">X</span>
-          <div class="prob-bar-track"><div class="prob-bar-fill draw" data-width="${drawPct}"></div></div>
-          <span class="prob-pct">${drawPct}%</span>
+          <div class="prob-bar-track"><div class="prob-bar-fill draw" data-width="${dp}"></div></div>
+          <span class="prob-pct">${dp}%</span>
         </div>
         <div class="prob-row">
           <span class="prob-label">2</span>
-          <div class="prob-bar-track"><div class="prob-bar-fill away" data-width="${awayPct}"></div></div>
-          <span class="prob-pct">${awayPct}%</span>
+          <div class="prob-bar-track"><div class="prob-bar-fill away" data-width="${ap}"></div></div>
+          <span class="prob-pct">${ap}%</span>
         </div>
       </div>
-      <div class="tips-row">
-        ${overTip}
-        ${bttsTip}
-        ${pred.confidence >= 80 ? '<div class="tip-chip">⭐ High Confidence</div>' : ''}
+
+      ${csRowHtml}
+      ${htftRowHtml}
+      ${tipsRowHtml}
+
+      <div class="conf-bar">
+        <span class="conf-label">AI Conf.</span>
+        <div class="conf-bar-track"><div class="conf-bar-fill" style="width:${confPct}%"></div></div>
+        <span class="conf-value">${conf}%</span>
       </div>
     </div>
   </article>`;
 }
 
-function makePredBadge(prediction, confidence) {
-  const labels = { home: 'HOME WIN', draw: 'DRAW', away: 'AWAY WIN' };
-  const icons = { home: '✅', draw: '⚖️', away: '✅' };
-  const label = labels[prediction] || 'N/A';
-  const icon = icons[prediction] || '';
-  return `<span class="prediction-badge ${prediction}">${icon} ${label} ${confidence}%</span>`;
+function makeDefaultPred() {
+  return { prediction:'home', home_prob:0.40, draw_prob:0.28, away_prob:0.32, confidence:50,
+    over_25_prob:0.52, under_25_prob:0.48, btts_yes_prob:0.50, btts_no_prob:0.50 };
 }
 
-// ─── Modal ───────────────────────────────────────────────────────────
-async function openMatchModal(matchId) {
-  const match = state.matches.find(m => m.id === matchId);
+// ─── Modal ───
+async function openMatchModal(id) {
+  const match = state.matches.find(m => m.id === id);
   if (!match) return;
+  let pred = state.predictions[id];
+  if (!pred) { try { pred = await fetchPrediction(id); state.predictions[id] = pred; } catch { pred = makeDefaultPred(); } }
 
-  let pred = state.predictions[matchId];
-  if (!pred) {
-    try {
-      pred = await fetchPrediction(matchId);
-      state.predictions[matchId] = pred;
-    } catch { /* use existing */ }
-  }
+  const status = match.status || 'upcoming';
+  const isLive = status === 'live', isFinished = status === 'finished';
+  const hs = isFinished || match.home_score !== null ? (match.home_score ?? 0) : '-';
+  const as_ = isFinished || match.home_score !== null ? (match.away_score ?? 0) : '-';
+  const homeInit = (match.home_team||'H')[0].toUpperCase();
+  const awayInit = (match.away_team||'A')[0].toUpperCase();
+  const hp = Math.round((pred.home_prob||0.33)*100);
+  const dp = Math.round((pred.draw_prob||0.28)*100);
+  const ap = Math.round((pred.away_prob||0.32)*100);
+  const predVal = pred.prediction||'home';
+  const conf = pred.confidence||50;
+  const predLabel = {home:'HOME WIN',draw:'DRAW',away:'AWAY WIN'}[predVal]||'N/A';
 
-  const overlay = document.getElementById('modalOverlay');
+  // Correct score table
+  const cs = pred.correct_score_probs || {};
+  const topCs = Object.entries(cs).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const csRows = topCs.map(([score,p]) =>
+    `<tr><td>${score}</td><td>${Math.round(p*100)}%</td></tr>`).join('');
+
+  // HT/FT
+  const htft = pred.ht_ft_probs || {};
+  const topHtft = Object.entries(htft).sort((a,b)=>b[1]-a[1]);
+  const htftCards = topHtft.slice(0,9).map(([k,p]) =>
+    `<div class="htft-card${k===topHtft[0][0]?' top':''}"><div class="htft-label">${k}</div><div class="htft-pct">${Math.round(p*100)}%</div></div>`).join('');
+
+  // Odds
+  const ho = pred.home_odds ? +pred.home_odds.toFixed(2) : null;
+  const do_ = pred.draw_odds ? +pred.draw_odds.toFixed(2) : null;
+  const ao = pred.away_odds ? +pred.away_odds.toFixed(2) : null;
+  const hasOdds = ho && do_ && ao;
+
+  // Weather
+  const weatherIcon = match.weather_icon || '🌤️';
+  const weatherDesc = match.weather || 'Clear';
+  const temp = match.temperature ? match.temperature + '°C' : '';
+
+  // Expected goals
+  const xg = pred.expected_goals ? +pred.expected_goals.toFixed(2) : null;
+
   const content = document.getElementById('modalContent');
-  const homeInitial = (match.home_team || 'H')[0];
-  const awayInitial = (match.away_team || 'A')[0];
-  const hs = match.home_score ?? '-', as = match.away_score ?? '-';
-  const predBadge = pred ? makePredBadge(pred.prediction, pred.confidence) : '';
-  const homePct = pred ? Math.round(pred.home_prob * 100) : 0;
-  const drawPct = pred ? Math.round(pred.draw_prob * 100) : 0;
-  const awayPct = pred ? Math.round(pred.away_prob * 100) : 0;
-
   content.innerHTML = `
     <div class="modal-match-header">
       <div class="modal-team">
-        <div class="modal-team-logo">${homeInitial}</div>
+        <div class="modal-team-logo">${homeInit}</div>
         <div class="modal-team-name">${match.home_team}</div>
       </div>
-      <div class="modal-score">${hs} - ${as}</div>
+      <div>
+        <div class="modal-score">${hs} – ${as_}</div>
+        <div class="modal-score-label">${isLive?'🔴 LIVE':isFinished?'FT':match.time||''}</div>
+      </div>
       <div class="modal-team">
-        <div class="modal-team-logo">${awayInitial}</div>
+        <div class="modal-team-logo">${awayInit}</div>
         <div class="modal-team-name">${match.away_team}</div>
       </div>
-    </div>
-    ${pred ? `
-    <div class="modal-section">
-      <div class="modal-section-title">🤖 AI Prediction</div>
-      <div class="modal-prediction">
-        <div class="modal-pred-result">
-          ${predBadge}
-          <span style="color:var(--text-secondary);font-size:13px;">Confidence: <strong style="color:var(--accent-green)">${pred.confidence}%</strong></span>
-        </div>
-        <div class="modal-pred-probs">
-          <div class="modal-pred-prob"><span class="label">Home (1)</span><span class="value" style="color:var(--accent-green)">${homePct}%</span></div>
-          <div class="modal-pred-prob"><span class="label">Draw (X)</span><span class="value" style="color:var(--accent-yellow)">${drawPct}%</span></div>
-          <div class="modal-pred-prob"><span class="label">Away (2)</span><span class="value" style="color:var(--accent-red)">${awayPct}%</span></div>
-        </div>
+      <div class="modal-actions">
+        <button class="share-btn" onclick="handleShare(document.querySelector('.share-btn[data-id=\\'${id}\\']'))">🔗 Share</button>
       </div>
     </div>
-    <div class="modal-section">
-      <div class="modal-section-title">📊 Secondary Markets</div>
-      <div class="stats-grid">
-        <div class="stat-card"><span class="label">Over 2.5</span><span class="value home">${Math.round(pred.over_25_prob * 100)}%</span></div>
-        <div class="stat-card"><span class="label">Under 2.5</span><span class="value away">${Math.round(pred.under_25_prob * 100)}%</span></div>
-        <div class="stat-card"><span class="label">BTTS Yes</span><span class="value home">${Math.round(pred.btts_yes_prob * 100)}%</span></div>
-        <div class="stat-card"><span class="label">BTTS No</span><span class="value away">${Math.round(pred.btts_no_prob * 100)}%</span></div>
-      </div>
-    </div>
-    ` : '<p style="color:var(--text-secondary)">No prediction data available.</p>'}
-    <div class="modal-section">
-      <div class="modal-section-title">🏆 ${match.league || 'League'}</div>
-      <p style="color:var(--text-secondary);font-size:14px;">${match.country || ''} &bull; ${match.date || ''} ${match.time || ''}</p>
-    </div>
-    <div class="modal-section">
-      <div class="modal-section-title">📋 Head to Head (Last 5)</div>
-      <p style="color:var(--text-muted);font-size:13px;">H2H data requires API key configuration.</p>
-    </div>`;
 
-  overlay.classList.add('open');
+    ${!isFinished&&!isLive?`
+    <div class="modal-section">
+      <div class="modal-section-title"><span class="icon">🤖</span> AI Prediction — ${predLabel} (${conf}% confidence)</div>
+      <div class="modal-1x2">
+        <div class="modal-1x2-row">
+          <div class="modal-1x2-outcome">
+            <div class="modal-1x2-label">Home (1)</div>
+            <div class="modal-1x2-bar"><div class="modal-1x2-fill home" style="width:${hp}%"></div></div>
+            <div class="modal-1x2-pct" style="color:var(--accent-green)">${hp}%</div>
+            ${ho?'<div class="modal-1x2-odds">'+ho.toFixed(2)+'</div>':''}
+          </div>
+          <div class="modal-1x2-outcome">
+            <div class="modal-1x2-label">Draw (X)</div>
+            <div class="modal-1x2-bar"><div class="modal-1x2-fill draw" style="width:${dp}%"></div></div>
+            <div class="modal-1x2-pct" style="color:var(--accent-yellow)">${dp}%</div>
+            ${do_?'<div class="modal-1x2-odds">'+do_.toFixed(2)+'</div>':''}
+          </div>
+          <div class="modal-1x2-outcome">
+            <div class="modal-1x2-label">Away (2)</div>
+            <div class="modal-1x2-bar"><div class="modal-1x2-fill away" style="width:${ap}%"></div></div>
+            <div class="modal-1x2-pct" style="color:var(--accent-red)">${ap}%</div>
+            ${ao?'<div class="modal-1x2-odds">'+ao.toFixed(2)+'</div>':''}
+          </div>
+        </div>
+      </div>
+    </div>`:''}
+
+    ${xg?`
+    <div class="modal-section">
+      <div class="modal-section-title"><span class="icon">📊</span> Expected Goals & Markets</div>
+      <div class="stats-grid">
+        <div class="stat-card"><span class="label">xG Total</span><span class="value blue">${xg}</span></div>
+        <div class="stat-card"><span class="label">Over 2.5</span><span class="value home">${Math.round((pred.over_25_prob||0)*100)}%</span></div>
+        <div class="stat-card"><span class="label">Under 2.5</span><span class="value away">${Math.round((pred.under_25_prob||0)*100)}%</span></div>
+        <div class="stat-card"><span class="label">BTTS Yes</span><span class="value home">${Math.round((pred.btts_yes_prob||0)*100)}%</span></div>
+        <div class="stat-card"><span class="label">BTTS No</span><span class="value away">${Math.round((pred.btts_no_prob||0)*100)}%</span></div>
+        <div class="stat-card"><span class="label">AI Confidence</span><span class="value blue">${conf}%</span></div>
+      </div>
+    </div>`:''}
+
+    ${csRows?`
+    <div class="modal-section">
+      <div class="modal-section-title"><span class="icon">⚽</span> Correct Score Probability</div>
+      <table class="cs-table">
+        <thead><tr><th>Score</th><th>Probability</th></tr></thead>
+        <tbody>${csRows}</tbody>
+      </table>
+    </div>`:''}
+
+    ${htftCards?`
+    <div class="modal-section">
+      <div class="modal-section-title"><span class="icon">⏱</span> Half-Time / Full-Time</div>
+      <div class="htft-grid">${htftCards}</div>
+    </div>`:''}
+
+    ${hasOdds?`
+    <div class="modal-section">
+      <div class="modal-section-title"><span class="icon">💰</span> Betting Odds (AI Implied)</div>
+      <div class="odds-comparison">
+        <div class="odds-col home"><div class="odds-outcome">Home (1)</div><div class="odds-val">${ho}</div></div>
+        <div class="odds-col draw"><div class="odds-outcome">Draw (X)</div><div class="odds-val">${do_}</div></div>
+        <div class="odds-col away"><div class="odds-outcome">Away (2)</div><div class="odds-val">${ao}</div></div>
+      </div>
+    </div>`:''}
+
+    ${weatherIcon||temp?`
+    <div class="modal-section">
+      <div class="modal-section-title"><span class="icon">🌤️</span> Weather Conditions</div>
+      <div class="weather-card">
+        <span class="weather-icon-lg">${weatherIcon}</span>
+        <div class="weather-info">
+          <div class="weather-desc">${weatherDesc}</div>
+          ${temp?<div class="weather-temp">${temp}</div>:''}
+        </div>
+        <div class="weather-meta">${match.league||''}<br>${match.date||''} ${match.time||''}</div>
+      </div>
+    </div>`:''}
+
+    <div class="modal-section">
+      <div class="modal-section-title"><span class="icon">🏆</span> Match Info</div>
+      <div class="stats-grid-2">
+        <div class="stat-card"><span class="label">League</span><span class="value blue">${match.league||'N/A'}</span></div>
+        <div class="stat-card"><span class="label">Country</span><span class="value blue">${match.country||'N/A'}</span></div>
+        <div class="stat-card"><span class="label">Date</span><span class="value blue">${match.date||'N/A'}</span></div>
+        <div class="stat-card"><span class="label">Status</span><span class="value blue">${status}</span></div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
@@ -1259,71 +840,51 @@ function closeModal() {
   document.body.style.overflow = '';
 }
 
-// ─── UI Helpers ──────────────────────────────────────────────────────
-function showLoading(show) {
-  const loading = document.getElementById('loadingState');
-  const empty = document.getElementById('emptyState');
-  if (show) {
-    if (loading) loading.style.display = 'flex';
-    if (empty) empty.style.display = 'none';
-  } else {
-    if (loading) loading.style.display = 'none';
-  }
-}
-
-function showError(msg) {
-  const grid = document.getElementById('matchGrid');
-  grid.innerHTML = `<div class="empty-state" style="display:grid;grid-column:1/-1;">
-    <span class="empty-icon">⚠️</span><h3>Error</h3><p>${msg}</p></div>`;
-}
-
-function renderAccuracy(data) {
-  const el = document.getElementById('accuracyValue');
-  if (el) el.textContent = (data && data.accuracy_percent !== null) ? data.accuracy_percent + '%' : 'N/A';
-}
-
-function renderLeagues(leagues) {
-  const select = document.getElementById('leagueSelect');
-  const first = select.options[0];
-  select.innerHTML = '';
-  select.appendChild(first);
-  leagues.forEach(l => {
-    const opt = document.createElement('option');
-    opt.value = l.id;
-    opt.textContent = `${l.flag || ''} ${l.name} (${l.country})`;
-    select.appendChild(opt);
+function handleShare(btn) {
+  const id = btn.dataset.id;
+  const url = window.location.origin + '/?match=' + id;
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '🔗 Share'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => {
+    btn.textContent = '❌ Copy failed';
+    setTimeout(() => { btn.textContent = '🔗 Share'; }, 2000);
   });
 }
 
+// ─── Helpers ───
+function showLoading(show) {
+  const l = document.getElementById('loadingState');
+  const e = document.getElementById('emptyState');
+  if (show) { if(l) l.style.display='flex'; if(e) e.style.display='none'; }
+  else { if(l) l.style.display='none'; }
+}
+function showError(msg) {
+  document.getElementById('matchGrid').innerHTML = `<div class="empty-state" style="display:grid;grid-column:1/-1;"><span class="empty-icon">⚠️</span><h3>Error</h3><p>${msg}</p></div>`;
+}
+function renderAccuracy(data) {
+  const el = document.getElementById('accuracyValue');
+  if (el) el.textContent = (data&&data.accuracy_percent!=null) ? data.accuracy_percent+'%' : 'N/A';
+}
+function renderLeagues(leagues) {
+  const sel = document.getElementById('leagueSelect');
+  const first = sel.options[0];
+  sel.innerHTML = ''; sel.appendChild(first);
+  leagues.forEach(l => { const o = document.createElement('option'); o.value = l.id; o.textContent = `${l.flag||''} ${l.name} (${l.country||''})`; sel.appendChild(o); });
+}
 function renderStatsBanner() {
   document.getElementById('totalMatches').textContent = state.matches.length;
   const preds = Object.values(state.predictions);
-  let avgConf = 0;
-  if (preds.length > 0) avgConf = Math.round(preds.reduce((s, p) => s + (p.confidence || 0), 0) / preds.length);
+  const avgConf = preds.length ? Math.round(preds.reduce((s,p)=>s+(p.confidence||0),0)/preds.length) : 0;
   const avgEl = document.getElementById('avgConfidence');
-  if (avgEl) avgEl.textContent = avgConf > 0 ? avgConf + '%' : '—';
+  if (avgEl) avgEl.textContent = avgConf > 0 ? avgConf+'%' : '—';
   const acc = state.platformAccuracy;
   const accEl = document.getElementById('platformAccuracy');
-  if (accEl) accEl.textContent = (acc && acc.accuracy_percent !== null) ? acc.accuracy_percent + '%' : '—';
+  if (accEl) accEl.textContent = (acc&&acc.accuracy_percent!=null) ? acc.accuracy_percent+'%' : '—';
+  const tpEl = document.getElementById('totalPredictions');
+  if (tpEl) tpEl.textContent = preds.length || '—';
 }
-
-// ─── Animate probability bars on scroll into view ────────────────────
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.querySelectorAll('.prob-bar-fill').forEach(bar => {
-        const w = bar.dataset.width || 0;
-        bar.style.width = w + '%';
-      });
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
-
-const gridObserver = new MutationObserver(() => {
-  document.querySelectorAll('.match-card').forEach(card => observer.observe(card));
-});
-gridObserver.observe(document.getElementById('matchGrid'), { childList: true });
 </script>
 </body>
 </html>
