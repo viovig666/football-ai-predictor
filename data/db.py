@@ -2,6 +2,7 @@
 
 import sqlite3
 import os
+import json
 from datetime import datetime
 
 
@@ -56,6 +57,8 @@ def init_db(db_path: str):
             ht_ft_prob REAL,
             model_version TEXT,
             model_type TEXT,
+            ht_ft_probs_json TEXT DEFAULT '{}',
+            cs_probs_json TEXT DEFAULT '{}',
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (match_id) REFERENCES matches(id)
         )
@@ -89,6 +92,13 @@ def init_db(db_path: str):
         )
     """)
     cur.execute("CREATE INDEX IF NOT EXISTS idx_team_stats_team ON team_stats_cache(team_id)")
+
+    # Add JSON columns if they don't exist (migration for existing DBs)
+    for col, default in [("ht_ft_probs_json", "{}"), ("cs_probs_json", "{}")]:
+        try:
+            cur.execute(f"ALTER TABLE predictions ADD COLUMN {col} TEXT DEFAULT '{default}'")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
 
     conn.commit()
     conn.close()
@@ -137,6 +147,16 @@ def get_prediction(db_path: str, match_id: int) -> dict | None:
 
     pred = dict(row)
 
+    # Reconstruct dict fields from JSON columns
+    try:
+        pred["ht_ft_probs"] = json.loads(pred.pop("ht_ft_probs_json", "{}"))
+    except (json.JSONDecodeError, TypeError):
+        pred["ht_ft_probs"] = {}
+    try:
+        pred["correct_score_probs"] = json.loads(pred.pop("cs_probs_json", "{}"))
+    except (json.JSONDecodeError, TypeError):
+        pred["correct_score_probs"] = {}
+
     # Check freshness
     created = datetime.fromisoformat(pred["created_at"])
     age_hours = (datetime.now() - created).total_seconds() / 3600
@@ -157,8 +177,8 @@ def save_prediction(db_path: str, match_id: int, prediction: dict):
             match_id, prediction, home_prob, draw_prob, away_prob,
             confidence, over_25_prob, under_25_prob, btts_yes_prob, btts_no_prob,
             correct_score, correct_score_prob, ht_ft, ht_ft_prob,
-            model_version, model_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            model_version, model_type, ht_ft_probs_json, cs_probs_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         match_id,
         prediction["prediction"],
@@ -176,6 +196,8 @@ def save_prediction(db_path: str, match_id: int, prediction: dict):
         prediction.get("ht_ft_prob"),
         prediction.get("model_version"),
         prediction.get("model_type"),
+        json.dumps(prediction.get("ht_ft_probs", {})),
+        json.dumps(prediction.get("correct_score_probs", {})),
     ))
     conn.commit()
     conn.close()
