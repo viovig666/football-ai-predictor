@@ -120,17 +120,19 @@ def api_match_detail(match_id):
 @app.route("/api/predict/<int:match_id>")
 def api_predict(match_id):
     """
-    Generate AI prediction for a match, fully stateless.
-    match_id is the LOCAL DB id, but we look it up directly from the API
-    via the external_id mapping to avoid needing the DB at prediction time.
+    Generate AI prediction for a match.
+    match_id is the football-data.org external ID (used as the primary lookup key).
+    Falls back to local DB auto-increment id for backward compatibility.
     """
-    # Step 1: Try to find match by external_id first (stateless), then fall back to DB id
+    import logging
+
+    # Step 1: Try to find match by external_id (TEXT in DB, always compare as string)
     conn = sqlite3.connect(app.config["DATABASE"])
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
 
-    # Look up by external_id (the ID the frontend actually knows)
-    cur.execute("SELECT * FROM matches WHERE external_id = ?", (str(match_id),))
+    match_id_str = str(match_id)
+    cur.execute("SELECT * FROM matches WHERE external_id = ?", (match_id_str,))
     row = cur.fetchone()
 
     # Fall back to local DB auto-increment id
@@ -143,8 +145,7 @@ def api_predict(match_id):
 
     # Step 2: If not in DB, fetch from API for today + tomorrow and insert
     if not match:
-        import logging
-        logging.warning(f"[api_predict] match_id={match_id} not in DB, attempting self-heal from API")
+        logging.warning(f"[api_predict] match_id={match_id} not in DB, attempting self-heal")
         api = APIFootball()
         today = _paris_now().strftime("%Y-%m-%d")
         tomorrow = (_paris_now() + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -152,13 +153,15 @@ def api_predict(match_id):
             raw = api.get_matches_by_date(target_date)
             logging.warning(f"[api_predict] API for {target_date} returned {len(raw)} matches")
             for m in raw:
+                # Normalize external_id to string for consistent DB storage/comparison
+                m["external_id"] = str(m.get("external_id", ""))
                 m["date"] = target_date
                 db_id = insert_match(app.config["DATABASE"], m)
-                logging.warning(f"[api_predict] insert_match returned id={db_id} for {m.get('home_team')} vs {m.get('away_team')}")
-                # Match found by external_id
-                if str(m.get('external_id')) == str(match_id):
+                logging.warning(f"[api_predict] inserted id={db_id} ext={m.get('external_id')} {m.get('home_team')} vs {m.get('away_team')}")
+                if str(m.get("external_id")) == match_id_str:
                     m["id"] = db_id
                     match = m.copy()
+                    logging.warning(f"[api_predict] self-heal found match {match_id}")
                     break
             if match:
                 break
@@ -244,6 +247,11 @@ def api_predict(match_id):
     else:
         prediction["ht_ft"] = "HH"
         prediction["ht_ft_prob"] = 0.0
+
+    # Step 7: Keep the full dict data for HT/FT and Correct Score tabs (frontend needs these)
+    # These are already in the prediction dict from predictor.predict() — preserve them
+    prediction["correct_score_probs"] = cs_dict
+    prediction["ht_ft_probs"] = htft_dict
 
     # Step 7: Calculate indicative odds from model probabilities (no vig)
     home_p = prediction.get("home_prob", 0.40)
