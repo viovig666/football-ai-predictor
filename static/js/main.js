@@ -355,7 +355,8 @@ async function buildMatchCard(match) {
 
 function makeDefaultPred() {
   return { prediction:'home', home_prob:0.40, draw_prob:0.28, away_prob:0.32, confidence:50,
-    over_25_prob:0.52, under_25_prob:0.48, btts_yes_prob:0.50, btts_no_prob:0.50 };
+    over_25_prob:0.52, under_25_prob:0.48, btts_yes_prob:0.50, btts_no_prob:0.50,
+    ht_ft_probs:{}, correct_score_probs:{} };
 }
 
 // ─── Modal ───
