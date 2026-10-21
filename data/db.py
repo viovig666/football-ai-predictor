@@ -77,6 +77,19 @@ def init_db(db_path: str):
     cur.execute("CREATE INDEX IF NOT EXISTS idx_matches_date ON matches(date)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_predictions_match ON predictions(match_id)")
 
+    # Team stats cache — shared across all workers/servers so predictions are consistent
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS team_stats_cache (
+            team_id INTEGER NOT NULL,
+            league_id TEXT,
+            stat_key TEXT NOT NULL,
+            stat_value REAL NOT NULL,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (team_id, league_id, stat_key)
+        )
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_team_stats_team ON team_stats_cache(team_id)")
+
     conn.commit()
     conn.close()
 

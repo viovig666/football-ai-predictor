@@ -2,6 +2,8 @@
 
 import requests
 import time
+import sqlite3
+import os
 from datetime import datetime, timedelta
 from collections import defaultdict
 
@@ -11,14 +13,17 @@ class TeamStats:
 
     BASE_URL = "https://api.football-data.org/v4"
     API_KEY = "17414518b4cc4b2f987595779dce4fa6"
+    DB_PATH = "/app/football.db"
+    CACHE_TTL_HOURS = 6
 
-    def __init__(self):
+    def __init__(self, db_path: str = None):
         self.key = self.API_KEY
+        self.db_path = db_path or os.environ.get("DATABASE", self.DB_PATH)
         self.session = requests.Session()
         self.session.headers.update({"X-Auth-Token": self.key})
-        self._cache = {}          # team_id -> stats dict
-        self._h2h_cache = {}      # (home_id, away_id) -> H2H dict
-        self._league_cache = {}   # league_id -> standings dict
+        self._cache = {}          # team_id -> stats dict (in-memory fallback)
+        self._h2h_cache = {}     # (home_id, away_id) -> H2H dict (in-memory only)
+        self._league_cache = {}   # league_id -> standings dict (in-memory only)
 
     # ── Core HTTP ──────────────────────────────────────────────────────────
 
@@ -34,6 +39,40 @@ class TeamStats:
         except Exception:
             return None
 
+    # ── DB helpers ─────────────────────────────────────────────────────────
+
+    def _db_get(self, team_id: int, league_id: str = None) -> dict | None:
+        """Load cached stats from DB if fresh (within CACHE_TTL_HOURS)."""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cur = conn.cursor()
+            cutoff = (datetime.now() - timedelta(hours=self.CACHE_TTL_HOURS)).isoformat()
+            cur.execute(
+                """SELECT stat_key, stat_value FROM team_stats_cache
+                   WHERE team_id=? AND league_id=? AND updated_at > ?""",
+                (team_id, league_id, cutoff)
+            )
+            rows = cur.fetchall()
+            conn.close()
+            return {r[0]: r[1] for r in rows} if rows else None
+        except Exception:
+            return None
+
+    def _db_set(self, team_id: int, league_id: str, stats: dict):
+        """Persist team stats to DB, replacing any existing stale entries."""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cur = conn.cursor()
+            for key, val in stats.items():
+                cur.execute("""INSERT OR REPLACE INTO team_stats_cache
+                    (team_id, league_id, stat_key, stat_value, updated_at)
+                    VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)""",
+                    (team_id, league_id, key, val))
+            conn.commit()
+            conn.close()
+        except Exception:
+            pass  # Non-fatal — DB might be locked or table not yet created
+
     # ── Team stats from last N matches ─────────────────────────────────────
 
     def get_team_stats(self, team_id: int, league_id: str = None, limit: int = 10) -> dict:
@@ -44,6 +83,13 @@ class TeamStats:
           goals_conceded_avg float
           matches_played   int
         """
+        # Check DB cache first (shared across servers)
+        cached = self._db_get(team_id, league_id)
+        if cached:
+            self._cache[team_id] = cached
+            return cached
+
+        # Fall back to in-memory cache
         if team_id in self._cache:
             return self._cache[team_id]
 
@@ -53,15 +99,16 @@ class TeamStats:
 
         data = self._get(f"teams/{team_id}/matches", params)
         if not data:
-            # Fallback defaults
             result = self._default_stats()
             self._cache[team_id] = result
+            self._db_set(team_id, league_id, result)
             return result
 
         matches = data.get("matches", [])
         if not matches:
             result = self._default_stats()
             self._cache[team_id] = result
+            self._db_set(team_id, league_id, result)
             return result
 
         # Parse last N matches
@@ -102,9 +149,10 @@ class TeamStats:
             "matches_played": played,
         }
         self._cache[team_id] = result
+        self._db_set(team_id, league_id, result)
         return result
 
-    # ── Head-to-head ────────────────────────────────────────────────────────
+    # ── Head-to-head ───────────────────────────────────────────────────────
 
     def get_h2h(self, home_id: int, away_id: int, limit: int = 10) -> dict:
         """Returns h2h_home_wins, h2h_draws, h2h_away_wins from last N meetings."""
@@ -172,8 +220,9 @@ class TeamStats:
 # Singleton shared across requests
 _team_stats = None
 
-def get_team_stats() -> TeamStats:
+
+def get_team_stats(db_path: str = None) -> TeamStats:
     global _team_stats
     if _team_stats is None:
-        _team_stats = TeamStats()
+        _team_stats = TeamStats(db_path=db_path)
     return _team_stats
