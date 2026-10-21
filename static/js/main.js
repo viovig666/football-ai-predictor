@@ -121,8 +121,8 @@ async function renderAllMatches() {
         case 'over25': return (p.over_25_prob||0) > 0.55;
         case 'btts': return (p.btts_yes_prob||0) > 0.55;
         case 'high-conf': return (p.confidence||0) >= 72;
-        case 'htft': return p.ht_ft_probs && Object.keys(p.ht_ft_probs).length > 0;
-        case 'cs': return p.correct_score_probs && Object.keys(p.correct_score_probs).length > 0;
+        case 'htft': return p.ht_ft_probs != null;
+        case 'cs': return p.correct_score_probs != null;
         default: return true;
       }
     });
