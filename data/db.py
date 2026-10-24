@@ -5,6 +5,9 @@ import os
 import json
 from datetime import datetime
 
+# Path for JSON backup that survives Railway redeploys (committed to git)
+JSON_BACKUP_PATH = os.path.join(os.path.dirname(__file__), "predictions_backup.json")
+
 
 def init_db(db_path: str):
     """Initialize the SQLite database with required tables."""
@@ -127,6 +130,17 @@ def get_matches(db_path: str, date: str = None, league_id: str = None, limit: in
     return [dict(r) for r in rows]
 
 
+def get_prediction_from_json_backup(match_id: int) -> dict | None:
+    """Get a prediction from the JSON backup file (Railway redeploy survival)."""
+    backup = load_predictions_backup_json()
+    pred = backup.get(str(match_id))
+    if pred:
+        # Mark as fresh=false since it's a restored backup (will be re-refreshed)
+        pred["fresh"] = False
+        pred["restored_from_backup"] = True
+    return pred
+
+
 def get_prediction(db_path: str, match_id: int) -> dict | None:
     """Get the latest prediction for a match, if it exists and is fresh (< 6h old)."""
     conn = sqlite3.connect(db_path)
@@ -165,6 +179,26 @@ def get_prediction(db_path: str, match_id: int) -> dict | None:
     return pred
 
 
+def load_predictions_backup_json() -> dict:
+    """Load all predictions from the JSON backup file (survives Railway redeploys)."""
+    if not os.path.exists(JSON_BACKUP_PATH):
+        return {}
+    try:
+        with open(JSON_BACKUP_PATH) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def save_predictions_backup_json(predictions: dict) -> None:
+    """Save all predictions to the JSON backup file (survives Railway redeploys)."""
+    try:
+        with open(JSON_BACKUP_PATH, "w") as f:
+            json.dump(predictions, f, indent=2, default=str)
+    except OSError as e:
+        print(f"[db] JSON backup write failed: {e}")
+
+
 def save_prediction(db_path: str, match_id: int, prediction: dict):
     """Store a prediction in the DB, replacing any existing one for this match."""
     conn = sqlite3.connect(db_path)
@@ -201,6 +235,11 @@ def save_prediction(db_path: str, match_id: int, prediction: dict):
     ))
     conn.commit()
     conn.close()
+
+    # Also persist to JSON backup so Railway redeploys don't wipe it
+    backup = load_predictions_backup_json()
+    backup[str(match_id)] = prediction
+    save_predictions_backup_json(backup)
 
 
 def save_result(db_path: str, match_id: int, actual_outcome: str, home_score: int, away_score: int):

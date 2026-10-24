@@ -27,7 +27,7 @@ def _target_date(date_str: str) -> str:
 
 import config
 from ai.predictor import FootballPredictor
-from data.db import init_db, get_matches, get_prediction, save_prediction, save_result, insert_match
+from data.db import init_db, get_matches, get_prediction, save_prediction, save_result, insert_match, get_prediction_from_json_backup
 from data.api_football import APIFootball
 from data.team_stats import get_team_stats
 
@@ -231,6 +231,15 @@ def api_predict(match_id):
             return jsonify({"prediction": existing})
     except Exception:
         pass  # DB may be empty/wiped — continue without cache
+
+    # Step 4b: Fall back to JSON backup if DB cache miss (survives Railway redeploys)
+    try:
+        backup_pred = get_prediction_from_json_backup(match_id)
+        if backup_pred:
+            logging.warning(f"[api_predict] restored prediction from JSON backup for match {match_id}")
+            return jsonify({"prediction": backup_pred})
+    except Exception:
+        pass
 
     # Step 5: Generate prediction and cache it
     prediction = predictor.predict(match)
