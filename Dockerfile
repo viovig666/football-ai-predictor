@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 8080
 
 # Run with 300s timeout to allow AI model training on first boot
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--timeout", "300", "--workers", "1", "--preload", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--timeout", "300", "--workers", "1", "app:app"]

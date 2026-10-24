@@ -27,17 +27,27 @@ class TeamStats:
 
     # ── Core HTTP ──────────────────────────────────────────────────────────
 
-    def _get(self, endpoint: str, params: dict = None) -> dict | None:
+    def _get(self, endpoint: str, params: dict = None, _retries: int = 3) -> dict | None:
         if not self.key or self.key == "YOUR_API_KEY_HERE":
             return None
-        try:
-            r = self.session.get(f"{self.BASE_URL}/{endpoint}", params=params, timeout=10)
-            if r.status_code == 429:
-                return None
-            r.raise_for_status()
-            return r.json()
-        except Exception:
-            return None
+        for attempt in range(_retries):
+            try:
+                r = self.session.get(f"{self.BASE_URL}/{endpoint}", params=params, timeout=15)
+                if r.status_code == 429:
+                    # Respect Retry-After header, or back off 10s/30s/60s
+                    retry_after = r.headers.get("Retry-After")
+                    wait = int(retry_after) if retry_after and retry_after.isdigit() else (10 * (2 ** attempt))
+                    print(f"[TeamStats] Rate limited on {endpoint}, waiting {wait}s (attempt {attempt+1}/{_retries})")
+                    time.sleep(wait)
+                    continue
+                r.raise_for_status()
+                return r.json()
+            except Exception as e:
+                if attempt == _retries - 1:
+                    print(f"[TeamStats] _get failed after {_retries} attempts on {endpoint}: {e}")
+                    return None
+                time.sleep(2 ** attempt)
+        return None
 
     # ── DB helpers ─────────────────────────────────────────────────────────
 

@@ -175,31 +175,37 @@ def api_predict(match_id):
     away_id = match.get("away_team_id")
     league_id = match.get("league_id", "2001")
 
-    import logging
-    logging.warning(f"[api_predict] match_id={match_id} enrichment: home_id={home_id} away_id={away_id} league_id={league_id}")
+    # Only overwrite with real stats if API returns non-default data
+    # This preserves DB-cached values when the API is rate-limited
+    default_gs = 1.5  # magic number matching team_stats._default_stats
 
     if home_id:
         hs = ts.get_team_stats(home_id, league_id)
-        logging.warning(f"[api_predict] home stats: {hs}")
-        match["home_form"] = []
-        match["home_goals_scored_avg"] = hs["goals_scored_avg"]
-        match["home_goals_conceded_avg"] = hs["goals_conceded_avg"]
+        # Only apply if API gave us real data (goals_scored_avg != default fallback)
+        if hs and hs.get("goals_scored_avg", default_gs) != default_gs or hs.get("matches_played", 0) > 0:
+            match["home_form"] = []
+            match["home_goals_scored_avg"] = hs["goals_scored_avg"]
+            match["home_goals_conceded_avg"] = hs["goals_conceded_avg"]
     if away_id:
         as_ = ts.get_team_stats(away_id, league_id)
-        logging.warning(f"[api_predict] away stats: {as_}")
-        match["away_form"] = []
-        match["away_goals_scored_avg"] = as_["goals_scored_avg"]
-        match["away_goals_conceded_avg"] = as_["goals_conceded_avg"]
+        if as_ and as_.get("goals_scored_avg", default_gs) != default_gs or as_.get("matches_played", 0) > 0:
+            match["away_form"] = []
+            match["away_goals_scored_avg"] = as_["goals_scored_avg"]
+            match["away_goals_conceded_avg"] = as_["goals_conceded_avg"]
     if home_id and away_id:
         h2h = ts.get_h2h(home_id, away_id)
-        logging.warning(f"[api_predict] h2h: {h2h}")
-        match["h2h_home_wins"] = h2h["h2h_home_wins"]
-        match["h2h_draws"] = h2h["h2h_draws"]
-        match["h2h_away_wins"] = h2h["h2h_away_wins"]
+        if h2h and (h2h["h2h_home_wins"] + h2h["h2h_draws"] + h2h["h2h_away_wins"]) > 0:
+            match["h2h_home_wins"] = h2h["h2h_home_wins"]
+            match["h2h_draws"] = h2h["h2h_draws"]
+            match["h2h_away_wins"] = h2h["h2h_away_wins"]
     if home_id and league_id:
-        match["home_league_pos"] = ts.get_league_position(home_id, league_id) or 8
+        pos = ts.get_league_position(home_id, league_id)
+        if pos:
+            match["home_league_pos"] = pos
     if away_id and league_id:
-        match["away_league_pos"] = ts.get_league_position(away_id, league_id) or 8
+        pos = ts.get_league_position(away_id, league_id)
+        if pos:
+            match["away_league_pos"] = pos
 
     # Step 3b: Generate synthetic weather if not present
     import random
