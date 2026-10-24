@@ -186,12 +186,14 @@ def api_predict(match_id):
             match["home_form"] = []
             match["home_goals_scored_avg"] = hs["goals_scored_avg"]
             match["home_goals_conceded_avg"] = hs["goals_conceded_avg"]
+            ts.update_match_stats(match["id"], {"goals_scored_avg": hs.get("goals_scored_avg"), "goals_conceded_avg": hs.get("goals_conceded_avg")})
     if away_id:
         as_ = ts.get_team_stats(away_id, league_id)
         if as_ and as_.get("goals_scored_avg", default_gs) != default_gs or as_.get("matches_played", 0) > 0:
             match["away_form"] = []
             match["away_goals_scored_avg"] = as_["goals_scored_avg"]
             match["away_goals_conceded_avg"] = as_["goals_conceded_avg"]
+            ts.update_match_stats(match["id"], {"away_goals_scored_avg": as_.get("goals_scored_avg"), "away_goals_conceded_avg": as_.get("goals_conceded_avg")})
     if home_id and away_id:
         h2h = ts.get_h2h(home_id, away_id)
         if h2h and (h2h["h2h_home_wins"] + h2h["h2h_draws"] + h2h["h2h_away_wins"]) > 0:
@@ -405,6 +407,38 @@ def api_feedback():
 
     save_result(app.config["DATABASE"], match_id, actual, home_score, away_score)
     return jsonify({"status": "ok"})
+
+
+# ─── Warmup — pre-load team stats for today's matches ─────────────────────
+
+@app.route("/api/warm")
+def warm_stats():
+    """Pre-warm team stats cache for all today's matches. Call after deploy."""
+    try:
+        today = datetime.now().strftime("%Y-%m-%d")
+        conn = sqlite3.connect(app.config["DATABASE"])
+        cur = conn.cursor()
+        cur.execute("SELECT id, home_team_id, away_team_id, league_id FROM matches WHERE date=? AND home_team_id IS NOT NULL", (today,))
+        matches = cur.fetchall()
+        conn.close()
+
+        if not matches:
+            return jsonify({"status": "no matches", "count": 0})
+
+        ts = get_team_stats(app.config["DATABASE"])
+        warmed = 0
+        for mid, home_id, away_id, league_id in matches:
+            if home_id:
+                hs = ts.get_team_stats(home_id, str(league_id) if league_id else None)
+                ts.update_match_stats(mid, {"goals_scored_avg": hs.get("goals_scored_avg"), "goals_conceded_avg": hs.get("goals_conceded_avg")})
+            if away_id:
+                as_ = ts.get_team_stats(away_id, str(league_id) if league_id else None)
+                ts.update_match_stats(mid, {"away_goals_scored_avg": as_.get("goals_scored_avg"), "away_goals_conceded_avg": as_.get("goals_conceded_avg")})
+            warmed += 1
+
+        return jsonify({"status": "warmed", "matches": warmed})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # ─── Startup ───────────────────────────────────────────────────────────────
