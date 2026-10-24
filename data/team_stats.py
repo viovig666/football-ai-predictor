@@ -36,7 +36,7 @@ class TeamStats:
                 if r.status_code == 429:
                     # Respect Retry-After header, or back off 10s/30s/60s
                     retry_after = r.headers.get("Retry-After")
-                    wait = int(retry_after) if retry_after and retry_after.isdigit() else (10 * (2 ** attempt))
+                    wait = int(retry_after) if retry_after and retry_after.isdigit() else (2 ** attempt)
                     print(f"[TeamStats] Rate limited on {endpoint}, waiting {wait}s (attempt {attempt+1}/{_retries})")
                     time.sleep(wait)
                     continue
