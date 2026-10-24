@@ -80,8 +80,26 @@ class TeamStats:
                     (team_id, league_id, key, val))
             conn.commit()
             conn.close()
-        except Exception:
-            pass  # Non-fatal — DB might be locked or table not yet created
+        except Exception as e:
+            print(f"[TeamStats] DB set failed: {e}")
+
+    def update_match_stats(self, match_id: int, stats: dict):
+        """Write computed stats back to the matches table for persistence."""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cur = conn.cursor()
+            for key, val in stats.items():
+                col_map = {
+                    "goals_scored_avg": "home_goals_scored_avg",
+                    "goals_conceded_avg": "home_goals_conceded_avg",
+                }
+                col = col_map.get(key)
+                if col and val is not None:
+                    cur.execute(f"UPDATE matches SET {col}=? WHERE id=?", (val, match_id))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print(f"[TeamStats] update_match_stats failed: {e}")
 
     # ── Team stats from last N matches ─────────────────────────────────────
 
