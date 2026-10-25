@@ -59,10 +59,11 @@ def engineer_features(match_data: dict) -> pd.DataFrame:
     f["form_diff"] = home_form_score - away_form_score
 
     # ── Raw goals features ───────────────────────────────────────────────────
-    home_gs = match_data.get("home_goals_scored_avg", 1.5)
-    away_gs = match_data.get("away_goals_scored_avg", 1.2)
-    home_gc = match_data.get("home_goals_conceded_avg", 1.1)
-    away_gc = match_data.get("away_goals_conceded_avg", 1.3)
+    # Use `or` fallback — explicit None from failed enrichment must fall through to defaults
+    home_gs = match_data.get("home_goals_scored_avg") or 1.5
+    away_gs = match_data.get("away_goals_scored_avg") or 1.2
+    home_gc = match_data.get("home_goals_conceded_avg") or 1.1
+    away_gc = match_data.get("away_goals_conceded_avg") or 1.3
 
     f["home_goals_scored_avg"] = home_gs
     f["away_goals_scored_avg"] = away_gs
