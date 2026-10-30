@@ -185,6 +185,18 @@ class FootballPredictor:
             # Simulate 1–10 H2H matches for this pair
             h2h_total = int(rng.integers(1, 11))
 
+            # ── H2H HT/FT rates — derived from INDEPENDENT Poisson HT goals, NOT
+            # scaled from full-game H2H. Old bug: h2h_ht_home_rate = h2h_home_rate * 0.95
+            # forced HT to always mirror FT outcome → model always predicted HH.
+            # Real HT rates: ~45% home, ~30% draw, ~25% away (flat distribution).
+            _ht_home = float(np.clip(0.45 + rng.normal(0, 0.09), 0.10, 0.80))
+            _ht_draw = float(np.clip(0.30 + rng.normal(0, 0.07), 0.10, 0.55))
+            _ht_away = float(np.clip(0.25 + rng.normal(0, 0.07), 0.05, 0.65))
+            _ht_sum = _ht_home + _ht_draw + _ht_away
+            h2h_ht_home_rate = _ht_home / _ht_sum
+            h2h_ht_draw_rate = _ht_draw / _ht_sum
+            h2h_ht_away_rate = _ht_away / _ht_sum
+
             records.append({
                 # Form features
                 "home_form_score": home_form_base,
@@ -209,10 +221,10 @@ class FootballPredictor:
                 "h2h_draw_rate": h2h_draw_rate,
                 "h2h_away_win_rate": h2h_away_rate,
                 "h2h_weight": min(h2h_total / 10.0, 1.0),
-                # HT/FT H2H (derive from full-game H2H with some randomness)
-                "h2h_ht_home_rate": float(np.clip(h2h_home_rate * 0.95 + rng.normal(0, 0.08), 0.10, 0.75)),
-                "h2h_ht_draw_rate": float(np.clip(0.30 + rng.normal(0, 0.06), 0.10, 0.55)),
-                "h2h_ht_away_rate": float(np.clip(h2h_away_rate * 0.95 + rng.normal(0, 0.08), 0.05, 0.70)),
+                # HT/FT H2H — independent flat distribution (fixes HH bias)
+                "h2h_ht_home_rate": h2h_ht_home_rate,
+                "h2h_ht_draw_rate": h2h_ht_draw_rate,
+                "h2h_ht_away_rate": h2h_ht_away_rate,
                 # League positions
                 "home_league_pos": home_pos,
                 "away_league_pos": away_pos,
