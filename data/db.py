@@ -106,6 +106,36 @@ def init_db(db_path: str):
     conn.commit()
     conn.close()
 
+    # Restore team_stats_cache from JSON snapshot (survives Railway rebuilds)
+    _restore_team_stats_cache(db_path)
+
+
+def _restore_team_stats_cache(db_path: str):
+    """Restore team_stats_cache table from team_stats_cache.json on startup.
+    This ensures cached stats (e.g. Championship teams not in football-data.org API)
+    survive Railway filesystem wipes."""
+    if not os.path.exists(TEAM_STATS_JSON_PATH):
+        return
+    try:
+        with open(TEAM_STATS_JSON_PATH) as f:
+            entries = json.load(f)
+        if not entries:
+            return
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+        imported = 0
+        for entry in entries:
+            cur.execute("""INSERT OR REPLACE INTO team_stats_cache
+                (team_id, league_id, stat_key, stat_value, updated_at)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)""",
+                (entry["team_id"], entry["league_id"], entry["stat_key"], entry["stat_value"]))
+            imported += 1
+        conn.commit()
+        conn.close()
+        print(f"[db] Restored {imported} team_stats_cache entries from JSON snapshot")
+    except Exception as e:
+        print(f"[db] team_stats_cache JSON restore failed: {e}")
+
 
 def get_matches(db_path: str, date: str = None, league_id: str = None, limit: int = 100):
     """Fetch matches from DB, optionally filtered by date and league."""
