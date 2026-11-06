@@ -441,6 +441,34 @@ def warm_stats():
         return jsonify({"error": str(e)}), 500
 
 
+# ─── Admin: sync team stats cache from another server ─────────────────────
+
+@app.route("/api/admin/import-team-stats", methods=["POST"])
+def import_team_stats():
+    """Bulk-import team_stats_cache from a JSON payload. Used to restore
+    cached stats (e.g. Championship teams) that football-data.org doesn't cover."""
+    try:
+        data = request.get_json(force=True)
+        entries = data.get("team_stats_cache", [])
+        if not entries:
+            return jsonify({"error": "no entries"}), 400
+
+        conn = sqlite3.connect(app.config["DATABASE"])
+        cur = conn.cursor()
+        imported = 0
+        for team_id, league_id, stat_key, stat_value in entries:
+            cur.execute("""INSERT OR REPLACE INTO team_stats_cache
+                (team_id, league_id, stat_key, stat_value, updated_at)
+                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)""",
+                (team_id, league_id, stat_key, stat_value))
+            imported += 1
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "imported", "count": imported})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # ─── Startup ───────────────────────────────────────────────────────────────
 
 @app.before_request
